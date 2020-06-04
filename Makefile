@@ -19,12 +19,20 @@ PRJ2_TEST_NAME=prj2_test
 PRJ2_TEST=${PRJ2_TEST_DIR}/libs/armeabi/${PRJ2_TEST_NAME}
 PRJ2_TEST_DEST=${DEST_DIR}/${PRJ2_TEST_NAME}
 
-HACKING_LIST=
+HACKING_LIST=\
+Kconfig \
+mm/bz_mm_limits.c \
+mm/Makefile \
+include/linux/bz_mm_limits.h \
+mm/page_alloc.c \
+mm/bz_oom_killer.c
 
 all: help
 
 rsync:
-	rsync -rv hacking/* goldfish/
+	for file in $(HACKING_LIST); do \
+		rsync -u goldfish/$$file hacking/$$file; \
+	done
 
 kernel: rsync
 	make -C goldfish
