@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
 
 #define MAX_PRO_CNT 1 << 10
 
@@ -22,8 +23,8 @@ int main(int argc, char **argv) {
 #ifdef BUGEN_DEBUG
     bugens_test();
 #endif
-
-    bugen_assert("SIMPLE", syscall(__NR_mm_limit), ==, 88, "%d");
-
+    srand(time(NULL));
+    unsigned int i;
+    for (i = 0; i < 10; i++) { syscall(__NR_mm_limit, i, rand()); }
     exit(0);
 }

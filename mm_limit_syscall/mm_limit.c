@@ -39,10 +39,39 @@ static unsigned long **find_syscall_table() {
     return DEFAULT_SYSCALL_TABLE;
 }
 
-static int set_mm_limit_syscall(void) {
-    printk(init_mm_limit.hello);
-    printk(init_mm_limit.world);
-    return 88;
+static int set_mm_limit_syscall(uid_t uid, unsigned long mm_max) {
+    printk(KERN_INFO "*** Hello ***\n");
+    write_lock_irq(&mm_limit_rwlock);
+
+    int ok = 0;
+
+    struct mm_limit_struct *p;
+    list_for_each_entry(p, &init_mm_limit.list, list) {
+        if (p->uid == uid) {
+            p->mm_max = mm_max;
+            ok = 1;
+            printk(KERN_INFO "Updated: uid=%u, mm_max=%u\n", p->uid, p->mm_max);
+        }
+    }
+
+    if (!ok) {
+        struct mm_limit_struct *tmp =
+            kmalloc(sizeof(struct mm_limit_struct), 0);
+        tmp->uid = uid;
+        tmp->mm_max = mm_max;
+        list_add(&tmp->list, &init_mm_limit.list);
+        printk(KERN_INFO "Added: uid=%u, mm_max=%u\n", p->uid, p->mm_max);
+    }
+
+    int i = 0;
+    printk(KERN_INFO "Current list:\n");
+    list_for_each_entry(p, &init_mm_limit.list, list) {
+        printk(KERN_INFO "  %2d: uid=%u, limit=%u\n", i++, p->uid, p->mm_max);
+    }
+
+    write_unlock_irq(&mm_limit_rwlock);
+    printk(KERN_INFO "*** Bye ***\n");
+    return 0;
 }
 
 // Initialization of module

@@ -18,6 +18,8 @@ make -C ./killer_test
 make[2]: Entering directory '/home/bugenzhao/OSProjects/OSProject2/killer_test'
 cd jni && ndk-build
 make[3]: Entering directory '/home/bugenzhao/OSProjects/OSProject2/killer_test/jni'
+[armeabi] Compile thumb  : killer_test <= killer_test.c
+[armeabi] Executable     : killer_test
 [armeabi] Install        : killer_test => libs/armeabi/killer_test
 make[3]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/killer_test/jni'
 make[2]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/killer_test'
@@ -37,7 +39,7 @@ adb push ./killer_test/libs/armeabi/killer_test /data/misc
 adb shell insmod /data/misc/mm_limit.ko
 adb shell lsmod
 Module                  Size  Used by
-mm_limit                 992  0 
+mm_limit                1404  0 
 adb shell chmod +x /data/misc/killer_test
 adb shell /data/misc/killer_test
 
