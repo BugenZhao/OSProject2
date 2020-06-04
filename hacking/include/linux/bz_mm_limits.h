@@ -18,4 +18,6 @@ struct mm_limit_struct {
 extern struct mm_limit_struct init_mm_limit;
 extern rwlock_t mm_limit_rwlock;
 
+extern unsigned long get_mm_limit(uid_t uid);
+
 #endif

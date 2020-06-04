@@ -13,12 +13,12 @@
 
 #define __NR_mm_limit 272
 
-#define DEFAULT_SYSCALL_TABLE 0xc000d8c4
-static long *syscall_table = DEFAULT_SYSCALL_TABLE;
+#define DEFAULT_SYSCALL_TABLE ((void *)0xc000d8c4)
+unsigned long **syscall_table = DEFAULT_SYSCALL_TABLE;
 
 static int (*oldcall)(void);
 
-static unsigned long **find_syscall_table() {
+static unsigned long **find_syscall_table(void) {
     unsigned long offset;
     unsigned long **sct;
 
@@ -29,28 +29,29 @@ static unsigned long **find_syscall_table() {
         sct = (unsigned long **)offset;
         if (sct[__NR_close] == (unsigned long *)sys_close) {
             printk(KERN_INFO "Found syscall table: %p\n", sct);
-            syscall_table = sct;
             return sct;
         }
     }
 
     printk(KERN_WARNING "Failed to find syscall table, use default value %p\n",
            DEFAULT_SYSCALL_TABLE);
-    return DEFAULT_SYSCALL_TABLE;
+    return (unsigned long **)DEFAULT_SYSCALL_TABLE;
 }
 
 static int set_mm_limit_syscall(uid_t uid, unsigned long mm_max) {
+    int ok = 0;
+    int i = 0;
+    struct mm_limit_struct *p;
+
     printk(KERN_INFO "*** Hello ***\n");
     write_lock_irq(&mm_limit_rwlock);
 
-    int ok = 0;
-
-    struct mm_limit_struct *p;
     list_for_each_entry(p, &init_mm_limit.list, list) {
         if (p->uid == uid) {
             p->mm_max = mm_max;
             ok = 1;
-            printk(KERN_INFO "Updated: uid=%u, mm_max=%u\n", p->uid, p->mm_max);
+            printk(KERN_INFO "Updated: uid=%u, mm_max=%lu\n", p->uid,
+                   p->mm_max);
         }
     }
 
@@ -60,13 +61,12 @@ static int set_mm_limit_syscall(uid_t uid, unsigned long mm_max) {
         tmp->uid = uid;
         tmp->mm_max = mm_max;
         list_add(&tmp->list, &init_mm_limit.list);
-        printk(KERN_INFO "Added: uid=%u, mm_max=%u\n", p->uid, p->mm_max);
+        printk(KERN_INFO "Added: uid=%u, mm_max=%lu\n", uid, mm_max);
     }
 
-    int i = 0;
     printk(KERN_INFO "Current list:\n");
     list_for_each_entry(p, &init_mm_limit.list, list) {
-        printk(KERN_INFO "  %2d: uid=%u, limit=%u\n", i++, p->uid, p->mm_max);
+        printk(KERN_INFO "  %2d: uid=%u, limit=%lu\n", i++, p->uid, p->mm_max);
     }
 
     write_unlock_irq(&mm_limit_rwlock);
@@ -76,9 +76,10 @@ static int set_mm_limit_syscall(uid_t uid, unsigned long mm_max) {
 
 // Initialization of module
 static int mm_limit_init(void) {
-    find_syscall_table();                                     // Syscall table
+    syscall_table = find_syscall_table();                     // Syscall table
     oldcall = (int (*)(void))(syscall_table[__NR_mm_limit]);  // old
-    syscall_table[__NR_mm_limit] = (unsigned long)set_mm_limit_syscall;  // new
+    syscall_table[__NR_mm_limit] =
+        (unsigned long *)set_mm_limit_syscall;  // new
 
     printk(KERN_INFO "*** mm_limit module loaded ***\n");
     return 0;
@@ -86,7 +87,7 @@ static int mm_limit_init(void) {
 
 // Exit of module
 static void mm_limit_exit(void) {
-    syscall_table[__NR_mm_limit] = (unsigned long)oldcall;  // restore
+    syscall_table[__NR_mm_limit] = (unsigned long *)oldcall;  // restore
     printk(KERN_INFO "*** mm_limit module exited ***\n");
 }
 

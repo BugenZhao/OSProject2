@@ -23,6 +23,13 @@ make[3]: Entering directory '/home/bugenzhao/OSProjects/OSProject2/killer_test/j
 [armeabi] Install        : killer_test => libs/armeabi/killer_test
 make[3]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/killer_test/jni'
 make[2]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/killer_test'
+make -C ./prj2_test
+make[2]: Entering directory '/home/bugenzhao/OSProjects/OSProject2/prj2_test'
+cd jni && ndk-build
+make[3]: Entering directory '/home/bugenzhao/OSProjects/OSProject2/prj2_test/jni'
+[armeabi] Install        : prj2_test => libs/armeabi/prj2_test
+make[3]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/prj2_test/jni'
+make[2]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/prj2_test'
 
 
 
@@ -31,17 +38,21 @@ adb shell rmmod /data/misc/mm_limit.ko > /dev/null
 adb shell rm -f /data/misc/mm_limit.ko
 adb push ./mm_limit_syscall/mm_limit.ko /data/misc
 adb push ./killer_test/libs/armeabi/killer_test /data/misc
+adb push ./prj2_test/libs/armeabi/prj2_test /data/misc
 
 
 
 >> Running...
->> Problem 1
-adb shell insmod /data/misc/mm_limit.ko
-adb shell lsmod
+adb shell "insmod /data/misc/mm_limit.ko && lsmod"
 Module                  Size  Used by
-mm_limit                1404  0 
-adb shell chmod +x /data/misc/killer_test
-adb shell /data/misc/killer_test
+mm_limit                1428  0 
+adb shell "chmod +x /data/misc/killer_test && su 10060 /data/misc/killer_test"
+Syscalled
+I survived ONCE
+Killed 
+# adb shell free -k
+# adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70 10000000 4000000 4000000 4000000 4000000"
+# adb shell free -k
 
 
 >> Cleaning...
