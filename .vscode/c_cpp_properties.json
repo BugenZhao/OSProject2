@@ -6,12 +6,12 @@
                 "~/Android/kernel/goldfish/include/**",
                 "~/Android/kernel/goldfish/arch/arm/include/**",
                 "~/Android/kernel/goldfish/include/linux/kconfig.h",
+                "${workspaceFolder}/**",
+                "${default}",
                 "/usr/include",
                 "/usr/local/include",
                 "/usr/lib/gcc/x86_64-linux-gnu/9/include",
-                "/usr/include/x86_64-linux-gnu",
-                "${workspaceFolder}/**",
-                "${default}"
+                "/usr/include/x86_64-linux-gnu"
             ],
             "defines": [
                 "__KERNEL__",
@@ -26,7 +26,7 @@
                 "-fno-pic"
             ],
             "compilerPath": "~/Android/android-ndk-linux/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gcc",
-            "cStandard": "c99",
+            "cStandard": "c11",
             "intelliSenseMode": "gcc-x64",
             "compileCommands": "~/Android/kernel/goldfish/compile_commands.json",
             "browse": {

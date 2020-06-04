@@ -17,14 +17,13 @@
                 __FILE__, __LINE__, (lhs));                                    \
     }
 
-
 int main(int argc, char **argv) {
     // Do some TEST first
 #ifdef BUGEN_DEBUG
     bugens_test();
 #endif
 
-    syscall(__NR_mm_limit);
+    bugen_assert("SIMPLE", syscall(__NR_mm_limit), ==, 88, "%d");
 
     exit(0);
 }

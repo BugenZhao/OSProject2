@@ -1,5 +1,6 @@
 // Main code of `set_mm_limit` syscall
 
+#include <linux/bz_mm_limits.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -33,20 +34,22 @@ static unsigned long **find_syscall_table() {
         }
     }
 
-    printk(KERN_WARNING "Failed to find syscall table, use default value %p\n", DEFAULT_SYSCALL_TABLE);
+    printk(KERN_WARNING "Failed to find syscall table, use default value %p\n",
+           DEFAULT_SYSCALL_TABLE);
     return DEFAULT_SYSCALL_TABLE;
 }
 
-
-static int set_mm_limit_syscall() {
-    printk("HELLO!!!!!!!!\n");
+static int set_mm_limit_syscall(void) {
+    printk(init_mm_limit.hello);
+    printk(init_mm_limit.world);
+    return 88;
 }
 
 // Initialization of module
 static int mm_limit_init(void) {
-    find_syscall_table();                  // Syscall table
-    oldcall = (int (*)(void))(syscall_table[__NR_mm_limit]);      // Save the old one
-    syscall_table[__NR_mm_limit] = (unsigned long)set_mm_limit_syscall;  // Set this one
+    find_syscall_table();                                     // Syscall table
+    oldcall = (int (*)(void))(syscall_table[__NR_mm_limit]);  // old
+    syscall_table[__NR_mm_limit] = (unsigned long)set_mm_limit_syscall;  // new
 
     printk(KERN_INFO "*** mm_limit module loaded ***\n");
     return 0;
@@ -54,7 +57,7 @@ static int mm_limit_init(void) {
 
 // Exit of module
 static void mm_limit_exit(void) {
-    syscall_table[__NR_mm_limit] = (unsigned long)oldcall;  // Restore the old one
+    syscall_table[__NR_mm_limit] = (unsigned long)oldcall;  // restore
     printk(KERN_INFO "*** mm_limit module exited ***\n");
 }
 

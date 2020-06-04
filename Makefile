@@ -17,6 +17,12 @@ DEST_KILLER_TEST=${DEST_DIR}/${KILLER_TEST_NAME}
 
 all: help
 
+rsync:
+	rsync -rv hacking/* goldfish/
+
+kernel: rsync
+	make -C goldfish
+
 help:
 	@echo "To run the test:"
 	@echo "    1. Run 'make emulator' to start the emulator;"

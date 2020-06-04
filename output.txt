@@ -1,0 +1,47 @@
+make[1]: Entering directory '/home/bugenzhao/OSProjects/OSProject2'
+
+
+
+>> Building...
+make -C ./mm_limit_syscall KID=~/Android/kernel/goldfish
+make[2]: Entering directory '/home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall'
+make -C ~/Android/kernel/goldfish ARCH=arm CROSS_COMPILE=arm-linux-androideabi- M=/home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall modules
+make[3]: Entering directory '/home/bugenzhao/Android/kernel/goldfish'
+  CC [M]  /home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall/mm_limit.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC      /home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall/mm_limit.mod.o
+  LD [M]  /home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall/mm_limit.ko
+make[3]: Leaving directory '/home/bugenzhao/Android/kernel/goldfish'
+make[2]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall'
+make -C ./killer_test
+make[2]: Entering directory '/home/bugenzhao/OSProjects/OSProject2/killer_test'
+cd jni && ndk-build
+make[3]: Entering directory '/home/bugenzhao/OSProjects/OSProject2/killer_test/jni'
+[armeabi] Install        : killer_test => libs/armeabi/killer_test
+make[3]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/killer_test/jni'
+make[2]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/killer_test'
+
+
+
+>> Uploading...
+adb shell rmmod /data/misc/mm_limit.ko > /dev/null
+adb shell rm -f /data/misc/mm_limit.ko
+adb push ./mm_limit_syscall/mm_limit.ko /data/misc
+adb push ./killer_test/libs/armeabi/killer_test /data/misc
+
+
+
+>> Running...
+>> Problem 1
+adb shell insmod /data/misc/mm_limit.ko
+adb shell lsmod
+Module                  Size  Used by
+mm_limit                 992  0 
+adb shell chmod +x /data/misc/killer_test
+adb shell /data/misc/killer_test
+
+
+>> Cleaning...
+adb shell rmmod /data/misc/mm_limit.ko 
+make[1]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2'
