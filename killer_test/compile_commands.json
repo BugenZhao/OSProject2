@@ -1,0 +1,37 @@
+[
+    {
+        "arguments": [
+            "/home/bugenzhao/Android/android-ndk-linux/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gcc",
+            "-c",
+            "-fpic",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-march=armv5te",
+            "-mtune=xscale",
+            "-msoft-float",
+            "-mthumb",
+            "-Os",
+            "-g",
+            "-DNDEBUG",
+            "-fomit-frame-pointer",
+            "-fno-strict-aliasing",
+            "-finline-limit=64",
+            "-I/home/bugenzhao/OSProjects/OSProject2/killer_test/jni",
+            "-DANDROID",
+            "-pie",
+            "-fPIE",
+            "-Wa,--noexecstack",
+            "-Wformat",
+            "-Werror=format-security",
+            "-isystem",
+            "/home/bugenzhao/Android/android-ndk-linux/platforms/android-9/arch-arm/usr/include",
+            "-o",
+            "/home/bugenzhao/OSProjects/OSProject2/killer_test/obj/local/armeabi/objs/killer_test/killer_test.o",
+            "killer_test.c"
+        ],
+        "directory": "/home/bugenzhao/OSProjects/OSProject2/killer_test/jni",
+        "file": "killer_test.c"
+    }
+]

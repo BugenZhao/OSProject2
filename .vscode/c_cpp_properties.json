@@ -1,0 +1,46 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "~/Android/kernel/goldfish/include/**",
+                "~/Android/kernel/goldfish/arch/arm/include/**",
+                "~/Android/kernel/goldfish/include/linux/kconfig.h",
+                "/usr/include",
+                "/usr/local/include",
+                "/usr/lib/gcc/x86_64-linux-gnu/9/include",
+                "/usr/include/x86_64-linux-gnu",
+                "${workspaceFolder}/**",
+                "${default}"
+            ],
+            "defines": [
+                "__KERNEL__",
+                "__GNUC__=4",
+                "_GNU_SOURCE",
+                "__LINUX_ARM_ARCH__=7"
+            ],
+            "compilerArgs": [
+                "-nostdinc",
+                "-fno-strict-aliasing",
+                "-fno-common",
+                "-fno-pic"
+            ],
+            "compilerPath": "~/Android/android-ndk-linux/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gcc",
+            "cStandard": "c99",
+            "intelliSenseMode": "gcc-x64",
+            "compileCommands": "~/Android/kernel/goldfish/compile_commands.json",
+            "browse": {
+                "path": [
+                    "~/Android/kernel/goldfish/include/**",
+                    "~/Android/kernel/goldfish/arch/arm/include/**",
+                    "~/Android/kernel/goldfish/include/linux/kconfig.h",
+                    "${workspaceFolder}/**",
+                    "${default}"
+                ],
+                "limitSymbolsToIncludedHeaders": false,
+                "databaseFilename": ""
+            }
+        }
+    ],
+    "version": 4
+}
