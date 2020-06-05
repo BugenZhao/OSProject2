@@ -22,6 +22,7 @@ else
 	obj-y		+= bootmem.o
 endif
 
+# bugen's oom killer feature
 obj-$(CONFIG_BUGEN_OOM_KILLER) += bz_mm_limits.o bz_oom_killer.o
 
 obj-$(CONFIG_HAVE_MEMBLOCK) += memblock.o

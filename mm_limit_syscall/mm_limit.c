@@ -11,17 +11,21 @@
 #include <linux/uaccess.h>
 #include <linux/unistd.h>
 
+/* # of two syscalls */
 #define __NR_mm_limit 356
 #define __NR_mm_limit_time 357
 
 MODULE_LICENSE("GPL");
 
+/* we will find the exact table address later */
 #define DEFAULT_SYSCALL_TABLE ((void *)0xc000d8c4)
 unsigned long **syscall_table = DEFAULT_SYSCALL_TABLE;
 
+/* old syscalls */
 static int (*oldcall_first)(void);
 static int (*oldcall_second)(void);
 
+/* find the syscall table address */
 static unsigned long **find_syscall_table(void) {
     unsigned long offset;
     unsigned long **sct;
@@ -42,6 +46,7 @@ static unsigned long **find_syscall_table(void) {
     return (unsigned long **)DEFAULT_SYSCALL_TABLE;
 }
 
+/* set_mm_limit_time system call, with time_allow_exceed in ms */
 static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
                                      unsigned int time_allow_exceed_ms) {
     int ok = 0;
@@ -98,13 +103,14 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
     return 0;
 }
 
+/* convenience: set_mm_limit system call, without time_allow_exceed */
 static int set_mm_limit_syscall(uid_t uid, unsigned long mm_max) {
     return set_mm_limit_time_syscall(uid, mm_max, 0);
 }
 
-// Initialization of module
+/* initialization of module */
 static int mm_limit_init(void) {
-    syscall_table = find_syscall_table();  // Syscall table
+    syscall_table = find_syscall_table(); 
     oldcall_first = (int (*)(void))(syscall_table[__NR_mm_limit]);
     oldcall_second = (int (*)(void))(syscall_table[__NR_mm_limit_time]);
 
@@ -116,7 +122,7 @@ static int mm_limit_init(void) {
     return 0;
 }
 
-// Exit of module
+/* exit of module */
 static void mm_limit_exit(void) {
     syscall_table[__NR_mm_limit] = (unsigned long *)oldcall_first;
     syscall_table[__NR_mm_limit_time] = (unsigned long *)oldcall_second;

@@ -2,12 +2,15 @@
 #include <linux/export.h>
 #include <linux/timer.h>
 
+/* the head of mm_limit list */
 struct mm_limit_struct init_mm_limit = INIT_MM_LIMIT(init_mm_limit);
+/* rwlock for mm_limit list */
 DEFINE_RWLOCK(mm_limit_rwlock);
 
 EXPORT_SYMBOL(mm_limit_rwlock);
 EXPORT_SYMBOL(init_mm_limit);
 
+/* get the memory limit for the given uid */
 unsigned long get_mm_limit(uid_t uid) {
     struct mm_limit_struct *p;
 
@@ -22,6 +25,7 @@ unsigned long get_mm_limit(uid_t uid) {
     return ULONG_MAX;
 }
 
+/* set the killer's waiting state for the given uid to v */
 int set_mm_limit_waiting(uid_t uid, int v) {
     struct mm_limit_struct *p;
 
@@ -37,6 +41,7 @@ int set_mm_limit_waiting(uid_t uid, int v) {
     return -1;
 }
 
+/* get the killer's waiting state for the given uid */
 int get_mm_limit_waiting(uid_t uid) {
     struct mm_limit_struct *p;
 
@@ -51,8 +56,10 @@ int get_mm_limit_waiting(uid_t uid) {
     return -1;
 }
 
+/* start a killer timer for the given uid, with the callback function, if
+ * custom_time is 0, the default time_allow_exceed will be used */
 long long bz_start_timer(uid_t uid, void (*function)(unsigned long),
-                   unsigned long custom_time) {
+                         unsigned long custom_time) {
     struct mm_limit_struct *p;
 
     write_lock_irq(&mm_limit_rwlock);

@@ -10,6 +10,7 @@ config SRCARCH
 
 source "arch/$SRCARCH/Kconfig"
 
+# bugen's oom killer feature
 config BUGEN_OOM_KILLER
 	bool "Bugen's OOM Killer Feature"
 	default y

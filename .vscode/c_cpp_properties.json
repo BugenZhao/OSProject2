@@ -18,7 +18,8 @@
                 "_GNU_SOURCE",
                 "__LINUX_ARM_ARCH__=7",
                 "CONFIG_HZ=100",
-                "CONFIG_MMU"
+                "CONFIG_MMU",
+                "CONFIG_BUGEN_OOM_KILLER"
             ],
             "compilerArgs": [
                 "-nostdinc",

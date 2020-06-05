@@ -20,6 +20,7 @@
 
 int bz_oom_worker(uid_t uid, int order, int strict);
 
+/* timer callback: time_allow_exceed expires */
 void bz_oom_time_expires(unsigned long _uid) {
     uid_t uid = (uid_t)_uid;
     printk(KERN_INFO "*** Time for checking user %u again. ***\n", uid);
@@ -27,6 +28,7 @@ void bz_oom_time_expires(unsigned long _uid) {
     bz_oom_worker(uid, 0, 1);
 }
 
+/* timer callback: time to check if exactly killed */
 void bz_oom_kill_expires(unsigned long _uid) {
     uid_t uid = (uid_t)_uid;
     printk(KERN_INFO
@@ -36,6 +38,7 @@ void bz_oom_kill_expires(unsigned long _uid) {
     bz_oom_worker(uid, 0, 2);
 }
 
+/* heart of bugen's oom killer */
 int bz_oom_worker(uid_t uid, int order, int strict) {
     struct task_struct *task;
     struct task_struct *selected = NULL;

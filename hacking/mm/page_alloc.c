@@ -2444,8 +2444,11 @@ __alloc_pages_nodemask(gfp_t gfp_mask, unsigned int order,
 	int migratetype = allocflags_to_migratetype(gfp_mask);
 	unsigned int cpuset_mems_cookie;
 
+/* the only hacking code to the original kernel file */
+#ifdef CONFIG_BUGEN_OOM_KILLER
 	extern int bz_oom_worker(uid_t uid, int order, int strict);
 	bz_oom_worker(current->cred->uid, order, 0);
+#endif
 
 	gfp_mask &= gfp_allowed_mask;
 

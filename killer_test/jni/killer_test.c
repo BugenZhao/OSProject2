@@ -12,8 +12,6 @@
 #define __NR_mm_limit 356
 #define __NR_mm_limit_time 357
 
-#undef BUGEN_DEBUG
-
 #define bugen_assert(no, lhs, op, rhs, format)                                 \
     if (!((lhs)op(rhs))) {                                                     \
         fprintf(stderr, "%s:%d: TEST " #no " ERROR: " #lhs " == " format "\n", \
@@ -22,6 +20,8 @@
 
 int main(int argc, char **argv) {
     int *p, *q, i, time = 0;
+
+    /* get time_allow_exceed from command line */
     if (argc >= 2 && (time = atoi(argv[1])) >= 0) {
         syscall(__NR_mm_limit_time, 10060, TEN_MB * 3, time);
     } else {
