@@ -20,7 +20,10 @@
 
 int bz_oom_worker(uid_t uid, int order, int strict);
 
-static void bz_oom_time_expires(uid_t uid) {
+void bz_oom_time_expires(unsigned long _uid) {
+    uid_t uid = (uid_t)_uid;
+    printk(KERN_INFO "Time's up for user %u\n", uid);
+    set_mm_limit_waiting(uid, 0);
     bz_oom_worker(uid, 0, 1);
 }
 
@@ -57,11 +60,30 @@ int bz_oom_worker(uid_t uid, int order, int strict) {
 
     if ((sum_rss << PAGE_SHIFT) <= mm_limit) { return 0; }
     if (!selected) { return 0; }
-
     if (selected->flags & PF_KTHREAD) { return 0; }
-
     if (selected->flags & PF_EXITING) {
         set_tsk_thread_flag(selected, TIF_MEMDIE);
+        return 0;
+    }
+    if (get_mm_limit_waiting(uid)) { return 0; }
+
+    if (!strict) {
+        struct timer_list timer;
+        printk("*** 4 ***\n");
+
+        init_timer(&timer);
+        timer.expires = jiffies + HZ;
+        timer.data = uid;
+        timer.function = bz_oom_time_expires;
+
+        printk(KERN_INFO
+               "Selected '%s' (%d) of user %u, but we are not strict. "
+               "Start a timer now!\n",
+               selected->comm, selected->pid, uid);
+        printk("*** 5 ***\n");
+        add_timer(&timer);
+        set_mm_limit_waiting(uid, 1);
+        printk("*** 6 ***\n");
         return 0;
     }
 

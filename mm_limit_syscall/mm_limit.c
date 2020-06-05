@@ -13,6 +13,8 @@
 
 #define __NR_mm_limit 272
 
+MODULE_LICENSE("GPL");
+
 #define DEFAULT_SYSCALL_TABLE ((void *)0xc000d8c4)
 unsigned long **syscall_table = DEFAULT_SYSCALL_TABLE;
 
@@ -44,7 +46,7 @@ static int set_mm_limit_syscall(uid_t uid, unsigned long mm_max) {
     struct mm_limit_struct *p;
 
     printk(KERN_INFO "*** Hello ***\n");
-    write_lock_irq(&mm_limit_rwlock);
+    write_lock(&mm_limit_rwlock);
 
     list_for_each_entry(p, &init_mm_limit.list, list) {
         if (p->uid == uid) {
@@ -69,7 +71,7 @@ static int set_mm_limit_syscall(uid_t uid, unsigned long mm_max) {
         printk(KERN_INFO "  %2d: uid=%u, limit=%lu\n", i++, p->uid, p->mm_max);
     }
 
-    write_unlock_irq(&mm_limit_rwlock);
+    write_unlock(&mm_limit_rwlock);
     printk(KERN_INFO "*** Bye ***\n");
     return 0;
 }

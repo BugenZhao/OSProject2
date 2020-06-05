@@ -9,12 +9,36 @@ EXPORT_SYMBOL(init_mm_limit);
 
 unsigned long get_mm_limit(uid_t uid) {
     struct mm_limit_struct *p;
+    unsigned long flags;
+
+    list_for_each_entry(p, &init_mm_limit.list, list) {
+        if (p->uid == uid) { return p->mm_max; }
+    }
+
+    return ULONG_MAX;
+}
+
+int set_mm_limit_waiting(uid_t uid, int v) {
+    struct mm_limit_struct *p;
+
     list_for_each_entry(p, &init_mm_limit.list, list) {
         if (p->uid == uid) {
-            return p->mm_max;
+            p->waiting = v;
+            return 0;
         }
     }
-    return ULONG_MAX;
+
+    return -1;
+}
+
+int get_mm_limit_waiting(uid_t uid) {
+    struct mm_limit_struct *p;
+
+    list_for_each_entry(p, &init_mm_limit.list, list) {
+        if (p->uid == uid) { return p->waiting; }
+    }
+
+    return -1;
 }
 
 EXPORT_SYMBOL(get_mm_limit);

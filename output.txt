@@ -43,31 +43,30 @@ adb push ./prj2_test/libs/armeabi/prj2_test /data/misc
 >> Running...
 adb shell "insmod /data/misc/mm_limit.ko && lsmod"
 Module                  Size  Used by
-mm_limit                1428  0 
+mm_limit                1420  0 
 adb shell "chmod +x /data/misc/killer_test && su 10060 /data/misc/killer_test"
 Syscalled
 I survived ONCE
-Killed 
+I survived TWICE
+Bye
 adb shell free -k
 		total        used        free      shared     buffers
-Mem:          1017948      166804      851144           0        1256
--/+ buffers/cache:         165548      852400
+Mem:          1017948      159036      858912           0        1288
+-/+ buffers/cache:         157748      860200
 Swap:               0           0           0
 adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70 10000000 4000000 4000000 4000000 4000000"
 pw->uid=10070, pw->name=u0_a70
 @@@@uid: 10070
-@@@@pid: 228
-child process start malloc: pid=230, uid=10070, mem=4000000
-child process start malloc: pid=233, uid=10070, mem=4000000
-child process start malloc: pid=232, uid=10070, mem=4000000
-child process start malloc: pid=231, uid=10070, mem=4000000
-child process finish malloc: pid=232, uid=10070, mem=4000000
-child process finish malloc: pid=231, uid=10070, mem=4000000
+@@@@pid: 223
+child process start malloc: pid=228, uid=10070, mem=4000000
+child process start malloc: pid=227, uid=10070, mem=4000000
+child process start malloc: pid=226, uid=10070, mem=4000000
+child process start malloc: pid=225, uid=10070, mem=4000000
+child process finish malloc: pid=227, uid=10070, mem=4000000
+child process finish malloc: pid=226, uid=10070, mem=4000000
+child process finish malloc: pid=225, uid=10070, mem=4000000
+child process finish malloc: pid=228, uid=10070, mem=4000000
 adb shell free -k
-		total        used        free      shared     buffers
-Mem:          1017948      167072      850876           0        1256
--/+ buffers/cache:         165816      852132
-Swap:               0           0           0
 
 
 >> Cleaning...
