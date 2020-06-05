@@ -71,9 +71,9 @@ run: build upload
 	@echo "\n\n\n>> Running..."
 	adb shell "insmod ${MODULE_DEST} && lsmod"
 	adb shell "chmod +x ${KILLER_TEST_DEST} && su 10060 ${KILLER_TEST_DEST}"
-	# adb shell free -k
-	# adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 10000000 4000000 4000000 4000000 4000000"
-	# adb shell free -k
+	adb shell free -k
+	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 10000000 4000000 4000000 4000000 4000000"
+	adb shell free -k
 	@echo "\n\n>> Cleaning..."
 	adb shell rmmod ${MODULE_DEST} 
 
