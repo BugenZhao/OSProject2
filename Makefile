@@ -4,8 +4,8 @@ KID=~/Android/kernel/goldfish
 
 DEST_DIR=/data/misc
 
-MODULE_DIR=./mm_limit_syscall
-MODULE_NAME=mm_limit.ko
+MODULE_DIR=./set_mm_limit_syscall
+MODULE_NAME=set_mm_limit.ko
 MODULE=${MODULE_DIR}/${MODULE_NAME}
 MODULE_DEST=${DEST_DIR}/${MODULE_NAME}
 
@@ -35,7 +35,7 @@ rsync:
 	done
 
 kernel: rsync
-	make -C goldfish
+	make -C goldfish -j4
 
 help:
 	@echo "To run the test:"
