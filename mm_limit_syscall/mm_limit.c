@@ -30,9 +30,9 @@ static unsigned long **find_syscall_table(void) {
     unsigned long offset;
     unsigned long **sct;
 
-    // sys call num maybe different
-    // check in unistd.h
-    //__NR_close will use 64bit version unistd.h by default when build LKM
+    /* sys call num maybe different
+     * check in unistd.h
+     * __NR_close will use 64bit version unistd.h by default when build LKM */
     for (offset = PAGE_OFFSET; offset < ULLONG_MAX; offset += sizeof(void *)) {
         sct = (unsigned long **)offset;
         if (sct[__NR_close] == (unsigned long *)sys_close) {
@@ -52,16 +52,20 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
     int ok = 0;
     int i = 0;
     struct mm_limit_struct *p;
+    /* convert ms to kernel ticks */
     unsigned long time_allow_exceed = time_allow_exceed_ms * HZ / 1000;
 
+    /* avoid illegal calling */
     if (uid < 10000) {
         printk(KERN_ERR "Attempted to limit user with uid < 10000. Aborted.\n");
         return -1;
     }
 
+    /* check if the limit is already in the list */
     write_lock(&mm_limit_rwlock);
     list_for_each_entry(p, &init_mm_limit.list, list) {
         if (p->uid == uid) {
+            /* update mm_max and time_allow_exceed */
             p->mm_max = mm_max;
             p->time_allow_exceed = time_allow_exceed;
             ok = 1;
@@ -73,26 +77,30 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
     }
     write_unlock(&mm_limit_rwlock);
 
+    /* limit not found in list, add it */
     if (!ok) {
+        /* allocate a new mm_limit_struct */
         struct mm_limit_struct *tmp =
             kmalloc(sizeof(struct mm_limit_struct), GFP_KERNEL);
 
-        tmp->uid = uid;
-        tmp->mm_max = mm_max;
-        tmp->waiting = 0;
+        tmp->uid = uid;       /* user id */
+        tmp->mm_max = mm_max; /* memory limit */
+        tmp->waiting = 0;     /* killer waiting flag */
+
+        /* just allocate memory for timer but keep it uninitialized */
         tmp->timer = kmalloc(sizeof(struct timer_list), GFP_KERNEL);
         tmp->time_allow_exceed = time_allow_exceed;
 
         write_lock(&mm_limit_rwlock);
-        list_add(&tmp->list, &init_mm_limit.list);
+        list_add(&tmp->list, &init_mm_limit.list); /* add it to list */
         write_unlock(&mm_limit_rwlock);
 
         printk(KERN_INFO "Added: uid=%u, mm_max=%lu, time_allow_exceed=%lu\n",
                uid, mm_max, time_allow_exceed);
     }
 
+    /* print the whole list */
     printk(KERN_INFO "Current list:\n");
-
     read_lock(&mm_limit_rwlock);
     list_for_each_entry(p, &init_mm_limit.list, list) {
         printk(KERN_INFO "  %2d: uid=%u, mm_max=%lu, time_allow_exceed=%lu\n",
@@ -110,10 +118,12 @@ static int set_mm_limit_syscall(uid_t uid, unsigned long mm_max) {
 
 /* initialization of module */
 static int mm_limit_init(void) {
-    syscall_table = find_syscall_table(); 
+    /* find the syscall table */
+    syscall_table = find_syscall_table();
+
+    /* save and replace two calls */
     oldcall_first = (int (*)(void))(syscall_table[__NR_mm_limit]);
     oldcall_second = (int (*)(void))(syscall_table[__NR_mm_limit_time]);
-
     syscall_table[__NR_mm_limit] = (unsigned long *)set_mm_limit_syscall;
     syscall_table[__NR_mm_limit_time] =
         (unsigned long *)set_mm_limit_time_syscall;
@@ -124,6 +134,7 @@ static int mm_limit_init(void) {
 
 /* exit of module */
 static void mm_limit_exit(void) {
+    /* restore two calls */
     syscall_table[__NR_mm_limit] = (unsigned long *)oldcall_first;
     syscall_table[__NR_mm_limit_time] = (unsigned long *)oldcall_second;
     printk(KERN_INFO "*** mm_limit module exited ***\n");
