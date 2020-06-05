@@ -51,24 +51,33 @@ int get_mm_limit_waiting(uid_t uid) {
     return -1;
 }
 
-int start_timer(uid_t uid, void (*function)(unsigned long)) {
+long long bz_start_timer(uid_t uid, void (*function)(unsigned long),
+                   unsigned long custom_time) {
     struct mm_limit_struct *p;
 
     write_lock_irq(&mm_limit_rwlock);
     list_for_each_entry(p, &init_mm_limit.list, list) {
         if (p->uid == uid) {
+            unsigned time = custom_time ? custom_time : p->time_allow_exceed;
+
+            if (time == 0) {
+                write_unlock_irq(&mm_limit_rwlock);
+                return -1;
+            }
+
             init_timer(p->timer);
-            p->timer->expires = jiffies + HZ;
+            p->timer->expires = jiffies + time;
             p->timer->data = uid;
             p->timer->function = function;
             p->waiting = 1;
             add_timer(p->timer);
+
             write_unlock_irq(&mm_limit_rwlock);
-            return 0;
+            return time;
         }
     }
     write_unlock_irq(&mm_limit_rwlock);
-    return -1;
+    return -2;
 }
 
 EXPORT_SYMBOL(get_mm_limit);

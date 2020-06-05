@@ -12,11 +12,14 @@ struct mm_limit_struct {
     unsigned long mm_max;
     int waiting;
     struct timer_list* timer;
+    unsigned long time_allow_exceed;
     struct list_head list;
 };
 
 #define INIT_MM_LIMIT(mm_limit) \
     { .list = LIST_HEAD_INIT(mm_limit.list) }
+
+#define WAIT_FOR_KILLING_TIME HZ / 10
 
 extern struct mm_limit_struct init_mm_limit;
 extern rwlock_t mm_limit_rwlock;
@@ -24,6 +27,7 @@ extern rwlock_t mm_limit_rwlock;
 extern unsigned long get_mm_limit(uid_t uid);
 extern int set_mm_limit_waiting(uid_t uid, int v);
 extern int get_mm_limit_waiting(uid_t uid);
-extern int start_timer(uid_t uid, void (*function)(unsigned long));
+extern long long bz_start_timer(uid_t uid, void (*function)(unsigned long),
+                                unsigned long custom_time);
 
 #endif

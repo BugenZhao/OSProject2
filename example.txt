@@ -1,0 +1,10 @@
+Updated: uid=10060, mm_max=31457280, time_allow_exceed=20
+Current list:
+   0: uid=10060, mm_max=31457280, time_allow_exceed=20
+*** Selected 'killer_test' (196) of user 10060 for the the first time. Start a timer of 20 ticks now! ***
+*** Time for checking user 10060 again. ***
+*** Selected 'killer_test' (196) of user 10060. Stats: mm=34512896, mm_sum=34512896, mm_limit=31457280 ***
+*** Killing 'killer_test' (196) of user 10060 since it is selected. ***
+*** uid=10060, uRSS=8426pages=34512896bytes, mm_max=31457280bytes; pid=196, pRSS=8426pages=34512896bytes ***
+*** Time for checking if process of user 10060 is killed. ***
+*** No process to select for user 10060 now. ***
