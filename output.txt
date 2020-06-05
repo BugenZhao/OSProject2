@@ -43,30 +43,33 @@ adb push ./prj2_test/libs/armeabi/prj2_test /data/misc
 >> Running...
 adb shell "insmod /data/misc/mm_limit.ko && lsmod"
 Module                  Size  Used by
-mm_limit                1420  0 
+mm_limit                1524  0 
 adb shell "chmod +x /data/misc/killer_test && su 10060 /data/misc/killer_test"
 Syscalled
 I survived ONCE
-I survived TWICE
-Bye
+Killed 
 adb shell free -k
 		total        used        free      shared     buffers
-Mem:          1017948      159036      858912           0        1288
--/+ buffers/cache:         157748      860200
+Mem:          1017948      148792      869156           0        1292
+-/+ buffers/cache:         147500      870448
 Swap:               0           0           0
 adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70 10000000 4000000 4000000 4000000 4000000"
 pw->uid=10070, pw->name=u0_a70
 @@@@uid: 10070
-@@@@pid: 223
-child process start malloc: pid=228, uid=10070, mem=4000000
-child process start malloc: pid=227, uid=10070, mem=4000000
-child process start malloc: pid=226, uid=10070, mem=4000000
-child process start malloc: pid=225, uid=10070, mem=4000000
-child process finish malloc: pid=227, uid=10070, mem=4000000
-child process finish malloc: pid=226, uid=10070, mem=4000000
-child process finish malloc: pid=225, uid=10070, mem=4000000
-child process finish malloc: pid=228, uid=10070, mem=4000000
+@@@@pid: 211
+child process start malloc: pid=216, uid=10070, mem=4000000
+child process start malloc: pid=215, uid=10070, mem=4000000
+child process start malloc: pid=214, uid=10070, mem=4000000
+child process start malloc: pid=213, uid=10070, mem=4000000
+child process finish malloc: pid=216, uid=10070, mem=4000000
+child process finish malloc: pid=214, uid=10070, mem=4000000
+child process finish malloc: pid=213, uid=10070, mem=4000000
+child process finish malloc: pid=215, uid=10070, mem=4000000
 adb shell free -k
+		total        used        free      shared     buffers
+Mem:          1017948      159768      858180           0        1292
+-/+ buffers/cache:         158476      859472
+Swap:               0           0           0
 
 
 >> Cleaning...

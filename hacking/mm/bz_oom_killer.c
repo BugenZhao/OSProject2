@@ -68,21 +68,12 @@ int bz_oom_worker(uid_t uid, int order, int strict) {
     if (get_mm_limit_waiting(uid)) { return 0; }
 
     if (!strict) {
-        struct timer_list timer;
         printk("*** 4 ***\n");
-
-        init_timer(&timer);
-        timer.expires = jiffies + HZ;
-        timer.data = uid;
-        timer.function = bz_oom_time_expires;
-
+        start_timer(uid, bz_oom_time_expires);
         printk(KERN_INFO
                "Selected '%s' (%d) of user %u, but we are not strict. "
                "Start a timer now!\n",
                selected->comm, selected->pid, uid);
-        printk("*** 5 ***\n");
-        add_timer(&timer);
-        set_mm_limit_waiting(uid, 1);
         printk("*** 6 ***\n");
         return 0;
     }

@@ -46,32 +46,40 @@ static int set_mm_limit_syscall(uid_t uid, unsigned long mm_max) {
     struct mm_limit_struct *p;
 
     printk(KERN_INFO "*** Hello ***\n");
-    write_lock(&mm_limit_rwlock);
 
+    write_lock(&mm_limit_rwlock);
     list_for_each_entry(p, &init_mm_limit.list, list) {
         if (p->uid == uid) {
             p->mm_max = mm_max;
             ok = 1;
             printk(KERN_INFO "Updated: uid=%u, mm_max=%lu\n", p->uid,
                    p->mm_max);
+            goto updated;
         }
     }
+updated:
+    write_unlock(&mm_limit_rwlock);
 
     if (!ok) {
         struct mm_limit_struct *tmp =
             kmalloc(sizeof(struct mm_limit_struct), 0);
         tmp->uid = uid;
         tmp->mm_max = mm_max;
+        tmp->timer = kmalloc(sizeof(struct timer_list), 0);
+        write_lock(&mm_limit_rwlock);
         list_add(&tmp->list, &init_mm_limit.list);
+        write_unlock(&mm_limit_rwlock);
         printk(KERN_INFO "Added: uid=%u, mm_max=%lu\n", uid, mm_max);
     }
 
     printk(KERN_INFO "Current list:\n");
+
+    read_lock(&mm_limit_rwlock);
     list_for_each_entry(p, &init_mm_limit.list, list) {
         printk(KERN_INFO "  %2d: uid=%u, limit=%lu\n", i++, p->uid, p->mm_max);
     }
+    read_unlock(&mm_limit_rwlock);
 
-    write_unlock(&mm_limit_rwlock);
     printk(KERN_INFO "*** Bye ***\n");
     return 0;
 }
