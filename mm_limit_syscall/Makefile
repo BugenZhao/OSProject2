@@ -1,4 +1,4 @@
-obj-m := set_mm_limit.o
+obj-m := mm_limit_syscall.o
 KID := ~/Android/kernel/goldfish
 CROSS_COMPILE=arm-linux-androideabi-
 CC=$(CROSS_COMPILE)gcc

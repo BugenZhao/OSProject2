@@ -11,9 +11,8 @@
 #include <linux/uaccess.h>
 #include <linux/unistd.h>
 
-/* # of two syscalls */
-#define __NR_mm_limit 356
-#define __NR_mm_limit_time 357
+/* # of syscalls */
+#include "../common/syscall_num.h"
 
 MODULE_LICENSE("GPL");
 
@@ -24,6 +23,7 @@ unsigned long **syscall_table = DEFAULT_SYSCALL_TABLE;
 /* old syscalls */
 static int (*oldcall_first)(void);
 static int (*oldcall_second)(void);
+static int (*oldcall_third)(void);
 
 /* find the syscall table address */
 static unsigned long **find_syscall_table(void) {
@@ -58,7 +58,7 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
     /* avoid illegal calling */
     if (uid < 10000) {
         printk(KERN_ERR "Attempted to limit user with uid < 10000. Aborted.\n");
-        return -1;
+        return -EACCES;
     }
 
     /* check if the limit is already in the list */
@@ -66,19 +66,25 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
     list_for_each_entry(p, &init_mm_limit.list, list) {
         if (p->uid == uid) {
             /* update mm_max and time_allow_exceed */
-            p->mm_max = mm_max;
-            p->time_allow_exceed = time_allow_exceed;
+            if (mm_max == ULONG_MAX) {
+                list_del(&p->list);
+                kfree(p);
+                printk(KERN_INFO "Removed: uid=%u\n", p->uid);
+            } else {
+                p->mm_max = mm_max;
+                p->time_allow_exceed = time_allow_exceed;
+                printk(KERN_INFO
+                       "Updated: uid=%u, mm_max=%lu, time_allow_exceed=%lu\n",
+                       p->uid, p->mm_max, p->time_allow_exceed);
+            }
             ok = 1;
-            printk(KERN_INFO
-                   "Updated: uid=%u, mm_max=%lu, time_allow_exceed=%lu\n",
-                   p->uid, p->mm_max, p->time_allow_exceed);
             break;
         }
     }
     write_unlock(&mm_limit_rwlock);
 
     /* limit not found in list, add it */
-    if (!ok) {
+    if (!ok && mm_max != ULONG_MAX) {
         /* allocate a new mm_limit_struct */
         struct mm_limit_struct *tmp =
             kmalloc(sizeof(struct mm_limit_struct), GFP_KERNEL);
@@ -97,23 +103,55 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
 
         printk(KERN_INFO "Added: uid=%u, mm_max=%lu, time_allow_exceed=%lu\n",
                uid, mm_max, time_allow_exceed);
+        ok = 1;
     }
 
     /* print the whole list */
-    printk(KERN_INFO "Current list:\n");
-    read_lock(&mm_limit_rwlock);
-    list_for_each_entry(p, &init_mm_limit.list, list) {
-        printk(KERN_INFO "  %2d: uid=%u, mm_max=%lu, time_allow_exceed=%lu\n",
-               i++, p->uid, p->mm_max, p->time_allow_exceed);
+    if (ok) {
+        printk(KERN_INFO "Current list:\n");
+        read_lock(&mm_limit_rwlock);
+        list_for_each_entry(p, &init_mm_limit.list, list) {
+            printk(KERN_INFO
+                   "  %2d: uid=%u, mm_max=%lu, time_allow_exceed=%lu\n",
+                   i++, p->uid, p->mm_max, p->time_allow_exceed);
+        }
+        read_unlock(&mm_limit_rwlock);
     }
-    read_unlock(&mm_limit_rwlock);
 
-    return 0;
+    return ok ? 0 : -ENODATA;
 }
 
 /* convenience: set_mm_limit system call, without time_allow_exceed */
 static int set_mm_limit_syscall(uid_t uid, unsigned long mm_max) {
     return set_mm_limit_time_syscall(uid, mm_max, 0);
+}
+
+static int get_mm_limit_syscall(uid_t uid,
+                                struct mm_limit_user_struct *ufound) {
+    struct mm_limit_struct *p;
+    struct mm_limit_user_struct kfound;
+    int ok = 0;
+
+    /* check if the limit is in the list, then copy to kfound */
+    read_lock(&mm_limit_rwlock);
+    list_for_each_entry(p, &init_mm_limit.list, list) {
+        if (p->uid == uid) {
+            kfound.mm_max = p->mm_max;
+            kfound.time_allow_exceed_ms = p->time_allow_exceed * 1000 / HZ;
+            ok = 1;
+            break;
+        }
+    }
+    read_unlock(&mm_limit_rwlock);
+
+    /* copy to user */
+    if (ok) {
+        if (copy_to_user(ufound, &kfound,
+                         sizeof(struct mm_limit_user_struct)) != 0) {
+            return -ENOBUFS;
+        }
+    }
+    return ok ? 0 : -ENODATA;
 }
 
 /* initialization of module */
@@ -124,9 +162,11 @@ static int mm_limit_init(void) {
     /* save and replace two calls */
     oldcall_first = (int (*)(void))(syscall_table[__NR_mm_limit]);
     oldcall_second = (int (*)(void))(syscall_table[__NR_mm_limit_time]);
+    oldcall_third = (int (*)(void))(syscall_table[__NR_get_mm_limit]);
     syscall_table[__NR_mm_limit] = (unsigned long *)set_mm_limit_syscall;
     syscall_table[__NR_mm_limit_time] =
         (unsigned long *)set_mm_limit_time_syscall;
+    syscall_table[__NR_get_mm_limit] = (unsigned long *)get_mm_limit_syscall;
 
     printk(KERN_INFO "*** mm_limit module loaded ***\n");
     return 0;
@@ -137,6 +177,7 @@ static void mm_limit_exit(void) {
     /* restore two calls */
     syscall_table[__NR_mm_limit] = (unsigned long *)oldcall_first;
     syscall_table[__NR_mm_limit_time] = (unsigned long *)oldcall_second;
+    syscall_table[__NR_get_mm_limit] = (unsigned long *)oldcall_third;
     printk(KERN_INFO "*** mm_limit module exited ***\n");
 }
 

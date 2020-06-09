@@ -7,17 +7,19 @@ make -C ./mm_limit_syscall KID=~/Android/kernel/goldfish
 make[2]: Entering directory '/home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall'
 make -C ~/Android/kernel/goldfish ARCH=arm CROSS_COMPILE=arm-linux-androideabi- M=/home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall modules
 make[3]: Entering directory '/home/bugenzhao/Android/kernel/goldfish'
-  CC [M]  /home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall/mm_limit.o
+  CC [M]  /home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall/mm_limit_syscall.o
   Building modules, stage 2.
   MODPOST 1 modules
-  CC      /home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall/mm_limit.mod.o
-  LD [M]  /home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall/mm_limit.ko
+  CC      /home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall/mm_limit_syscall.mod.o
+  LD [M]  /home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall/mm_limit_syscall.ko
 make[3]: Leaving directory '/home/bugenzhao/Android/kernel/goldfish'
 make[2]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall'
 make -C ./killer_test
 make[2]: Entering directory '/home/bugenzhao/OSProjects/OSProject2/killer_test'
 cd jni && ndk-build
 make[3]: Entering directory '/home/bugenzhao/OSProjects/OSProject2/killer_test/jni'
+[armeabi] Compile thumb  : killer_test <= killer_test.c
+[armeabi] Executable     : killer_test
 [armeabi] Install        : killer_test => libs/armeabi/killer_test
 make[3]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/killer_test/jni'
 make[2]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/killer_test'
@@ -32,18 +34,18 @@ make[2]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/prj2_test'
 
 
 >> Uploading...
-adb shell rmmod /data/misc/mm_limit.ko > /dev/null
-adb shell rm -f /data/misc/mm_limit.ko
-adb push ./mm_limit_syscall/mm_limit.ko /data/misc
+adb shell rmmod /data/misc/mm_limit_syscall.ko > /dev/null
+adb shell rm -f /data/misc/mm_limit_syscall.ko
+adb push ./mm_limit_syscall/mm_limit_syscall.ko /data/misc
 adb push ./killer_test/libs/armeabi/killer_test /data/misc
 adb push ./prj2_test/libs/armeabi/prj2_test /data/misc
 
 
 
 >> Running...
-adb shell "insmod /data/misc/mm_limit.ko && lsmod"
+adb shell "insmod /data/misc/mm_limit_syscall.ko && lsmod"
 Module                  Size  Used by
-mm_limit                1762  0 
+mm_limit_syscall        2233  0 
 adb shell "chmod +x /data/misc/killer_test"
 adb shell "su 10060 /data/misc/killer_test"
 Syscalled with allowed time: 0ms
@@ -51,24 +53,25 @@ I survived ONCE
 adb shell "su 10060 /data/misc/killer_test 200"
 Syscalled with allowed time: 200ms
 I survived ONCE
+I survived TWICE
 adb shell "su 10060 /data/misc/killer_test 2000"
 Syscalled with allowed time: 2000ms
 I survived ONCE
 I survived TWICE
 I survived THRICE
 Now I will allocate memory in an infinite loop!
-adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70 10000000 4000000 4000000 4000000 4000000"
+adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70 100000000 40000000 40000000 40000000 40000000"
 pw->uid=10070, pw->name=u0_a70
 @@@@uid: 10070
-@@@@pid: 222
-child process start malloc: pid=225, uid=10070, mem=4000000
-child process start malloc: pid=224, uid=10070, mem=4000000
-child process start malloc: pid=227, uid=10070, mem=4000000
-child process start malloc: pid=226, uid=10070, mem=4000000
-child process finish malloc: pid=226, uid=10070, mem=4000000
-child process finish malloc: pid=227, uid=10070, mem=4000000
+@@@@pid: 1453
+child process start malloc: pid=1456, uid=10070, mem=40000000
+child process start malloc: pid=1455, uid=10070, mem=40000000
+child process start malloc: pid=1454, uid=10070, mem=40000000
+child process start malloc: pid=1457, uid=10070, mem=40000000
+child process finish malloc: pid=1455, uid=10070, mem=40000000
+child process finish malloc: pid=1457, uid=10070, mem=40000000
 
 
 >> Cleaning...
-adb shell rmmod /data/misc/mm_limit.ko 
+adb shell rmmod /data/misc/mm_limit_syscall.ko 
 make[1]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2'

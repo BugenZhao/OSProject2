@@ -7,6 +7,12 @@
 #include <linux/timer.h>
 #include <linux/types.h>
 
+struct mm_limit_user_struct {
+    unsigned long mm_max;
+    unsigned long time_allow_exceed;
+};
+
+#ifdef __KERNEL__
 /* Struct definition of mm_limit's */
 struct mm_limit_struct {
     uid_t uid;                       /* user id */
@@ -35,4 +41,5 @@ extern int get_mm_limit_waiting(uid_t uid);
 extern long long bz_start_timer(uid_t uid, void (*function)(unsigned long),
                                 unsigned long custom_time);
 
-#endif
+#endif /* __KERNEL */
+#endif /* _LINUX_BZ_MM_LIMITS_H */

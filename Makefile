@@ -4,8 +4,8 @@ KID=~/Android/kernel/goldfish
 
 DEST_DIR=/data/misc
 
-MODULE_DIR=./set_mm_limit_syscall
-MODULE_NAME=set_mm_limit.ko
+MODULE_DIR=./mm_limit_syscall
+MODULE_NAME=mm_limit_syscall.ko
 MODULE=${MODULE_DIR}/${MODULE_NAME}
 MODULE_DEST=${DEST_DIR}/${MODULE_NAME}
 
@@ -75,12 +75,13 @@ run: build upload
 	adb shell "su 10060 ${KILLER_TEST_DEST}"
 	adb shell "su 10060 ${KILLER_TEST_DEST} 200"
 	adb shell "su 10060 ${KILLER_TEST_DEST} 2000"
-	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 10000000 4000000 4000000 4000000 4000000"
+	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 40000000 40000000 40000000 40000000"
 	@echo "\n\n>> Cleaning..."
 	adb shell rmmod ${MODULE_DEST} 
 
 clean:
 	make -C ${MODULE_DIR} clean
+	make -C ${KILLER_TEST_DIR} clean
 
 handin:
 	tar --exclude-vcs -cvf Prj2+518030910211.tar .
