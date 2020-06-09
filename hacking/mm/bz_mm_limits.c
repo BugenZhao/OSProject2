@@ -64,7 +64,7 @@ int get_mm_limit_waiting(uid_t uid) {
 
 /* start a killer timer for the given uid, with the callback function, if
  * custom_time is 0, the default time_allow_exceed will be used;
- * return the expires time, or negative value if failed*/
+ * return the expires time, or negative value if failed */
 long long bz_start_timer(uid_t uid, void (*function)(unsigned long),
                          unsigned long custom_time) {
     struct mm_limit_struct *p;

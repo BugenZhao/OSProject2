@@ -72,6 +72,7 @@ run: build upload
 	@echo "\n\n\n>> Running..."
 	adb shell "insmod ${MODULE_DEST} && lsmod"
 	adb shell "chmod +x ${KILLER_TEST_DEST}"
+	adb shell "su 10060 ${KILLER_TEST_DEST} test"
 	adb shell "su 10060 ${KILLER_TEST_DEST}"
 	adb shell "su 10060 ${KILLER_TEST_DEST} 200"
 	adb shell "su 10060 ${KILLER_TEST_DEST} 2000"

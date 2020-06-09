@@ -47,6 +47,19 @@ adb shell "insmod /data/misc/mm_limit_syscall.ko && lsmod"
 Module                  Size  Used by
 mm_limit_syscall        2233  0 
 adb shell "chmod +x /data/misc/killer_test"
+adb shell "su 10060 /data/misc/killer_test test"
+Test mode (uid: 10060)
+Syscall test: all tests passed
+Performance test: running WITHOUT mm_limit
+Performance test: allocated 256 MB in 1.64 secs
+Performance test: allocated 256 MB in 1.53 secs
+Performance test: allocated 256 MB in 1.57 secs
+Performance test: average time: 1.58 secs
+Performance test: running WITH mm_limit
+Performance test: allocated 256 MB in 2.25 secs
+Performance test: allocated 256 MB in 2.23 secs
+Performance test: allocated 256 MB in 2.26 secs
+Performance test: average time: 2.25 secs
 adb shell "su 10060 /data/misc/killer_test"
 Syscalled with allowed time: 0ms
 I survived ONCE
@@ -63,13 +76,13 @@ Now I will allocate memory in an infinite loop!
 adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70 100000000 40000000 40000000 40000000 40000000"
 pw->uid=10070, pw->name=u0_a70
 @@@@uid: 10070
-@@@@pid: 1453
-child process start malloc: pid=1456, uid=10070, mem=40000000
-child process start malloc: pid=1455, uid=10070, mem=40000000
-child process start malloc: pid=1454, uid=10070, mem=40000000
-child process start malloc: pid=1457, uid=10070, mem=40000000
-child process finish malloc: pid=1455, uid=10070, mem=40000000
-child process finish malloc: pid=1457, uid=10070, mem=40000000
+@@@@pid: 1914
+child process start malloc: pid=1917, uid=10070, mem=40000000
+child process start malloc: pid=1916, uid=10070, mem=40000000
+child process start malloc: pid=1915, uid=10070, mem=40000000
+child process start malloc: pid=1918, uid=10070, mem=40000000
+child process finish malloc: pid=1915, uid=10070, mem=40000000
+child process finish malloc: pid=1916, uid=10070, mem=40000000
 
 
 >> Cleaning...
