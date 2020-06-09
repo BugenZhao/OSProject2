@@ -82,7 +82,8 @@ run: build upload
 	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 40000000 40000000 40000000 40000000"
 	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70  10000000  4000000  4000000  4000000  4000000"
 	@echo "\n\n\e[33m>> Cleaning...\e[0m"
-	adb shell rmmod ${MODULE_DEST} 
+	adb shell rmmod ${MODULE_DEST}
+	make clean
 
 clean:
 	make -C ${MODULE_DIR} clean
