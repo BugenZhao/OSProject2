@@ -38,6 +38,11 @@ void bz_oom_kill_expires(unsigned long _uid) {
     bz_oom_worker(uid, 0, 2);     /* strict = 2 */
 }
 
+void bz_oom_reset_waiting(unsigned long _uid) {
+    uid_t uid = (uid_t)_uid;
+    set_mm_limit_waiting(uid, 0); /* reset waiting flag */
+}
+
 /* heart of bugen's oom killer */
 int bz_oom_worker(uid_t uid, int order, int strict) {
     struct task_struct *task;
@@ -84,6 +89,16 @@ int bz_oom_worker(uid_t uid, int order, int strict) {
         if (strict) {
             printk(KERN_INFO "*** No process to select for user %u now. ***\n",
                    uid);
+        } else {
+            /* expr: 128 MB, 0.8 secs; set: 4 MB, 1 tick = 0.01 secs */
+            int wait_time = mm_limit >> 22;
+            if (wait_time > HZ / 2) wait_time = HZ / 2;
+            if (wait_time)
+                bz_start_timer(uid, &bz_oom_reset_waiting, wait_time);
+
+            /* printk(KERN_INFO
+                   "*** Pause checking for user %u for %d ticks. ***\n",
+                   uid, wait_time); */
         }
         return 0;
     }

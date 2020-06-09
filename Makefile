@@ -53,14 +53,14 @@ shell:
 	adb shell
 
 build:
-	@echo "\n\n\n>> Building..."
+	@echo "\n\n\n\e[33m>> Building...\e[0m"
 	make -C ${MODULE_DIR} KID=${KID}
 	make -C ${KILLER_TEST_DIR}
 	make -C ${PRJ2_TEST_DIR}
 
 
 upload:
-	@echo "\n\n\n>> Uploading..."
+	@echo "\n\n\n\e[33m>> Uploading...\e[0m"
 	adb shell rmmod ${MODULE_DEST} > /dev/null
 	adb shell rm -f ${MODULE_DEST}
 	adb push ${MODULE} ${DEST_DIR}
@@ -69,15 +69,19 @@ upload:
 
 
 run: build upload
-	@echo "\n\n\n>> Running..."
+	@echo "\n\n\n\e[33m>> Running...\e[0m"
 	adb shell "insmod ${MODULE_DEST} && lsmod"
 	adb shell "chmod +x ${KILLER_TEST_DEST}"
+	@echo "\n\e[33m>> Running syscall tests and performance tests...\e[0m"
 	adb shell "su 10060 ${KILLER_TEST_DEST} test"
+	@echo "\n\e[33m>> Running functionality tests...\e[0m"
 	adb shell "su 10060 ${KILLER_TEST_DEST}"
 	adb shell "su 10060 ${KILLER_TEST_DEST} 200"
 	adb shell "su 10060 ${KILLER_TEST_DEST} 2000"
+	@echo "\n\e[33m>> Running prj2_test...\e[0m"
 	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 40000000 40000000 40000000 40000000"
-	@echo "\n\n>> Cleaning..."
+	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70  10000000  4000000  4000000  4000000  4000000"
+	@echo "\n\n\e[33m>> Cleaning...\e[0m"
 	adb shell rmmod ${MODULE_DEST} 
 
 clean:

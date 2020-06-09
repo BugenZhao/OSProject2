@@ -2,7 +2,7 @@ make[1]: Entering directory '/home/bugenzhao/OSProjects/OSProject2'
 
 
 
->> Building...
+[33m>> Building...[0m
 make -C ./mm_limit_syscall KID=~/Android/kernel/goldfish
 make[2]: Entering directory '/home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall'
 make -C ~/Android/kernel/goldfish ARCH=arm CROSS_COMPILE=arm-linux-androideabi- M=/home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall modules
@@ -33,7 +33,7 @@ make[2]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/prj2_test'
 
 
 
->> Uploading...
+[33m>> Uploading...[0m
 adb shell rmmod /data/misc/mm_limit_syscall.ko > /dev/null
 adb shell rm -f /data/misc/mm_limit_syscall.ko
 adb push ./mm_limit_syscall/mm_limit_syscall.ko /data/misc
@@ -42,24 +42,32 @@ adb push ./prj2_test/libs/armeabi/prj2_test /data/misc
 
 
 
->> Running...
+[33m>> Running...[0m
 adb shell "insmod /data/misc/mm_limit_syscall.ko && lsmod"
 Module                  Size  Used by
 mm_limit_syscall        2233  0 
 adb shell "chmod +x /data/misc/killer_test"
+
+[33m>> Running syscall tests and performance tests...[0m
 adb shell "su 10060 /data/misc/killer_test test"
 Test mode (uid: 10060)
 Syscall test: all tests passed
 Performance test: running WITHOUT mm_limit
-Performance test: allocated 256 MB in 1.64 secs
-Performance test: allocated 256 MB in 1.53 secs
-Performance test: allocated 256 MB in 1.57 secs
-Performance test: average time: 1.58 secs
+Performance test: allocated 128 MB in 0.91 cpu secs
+Performance test: allocated 128 MB in 0.71 cpu secs
+Performance test: allocated 128 MB in 0.75 cpu secs
+Performance test: allocated 128 MB in 0.75 cpu secs
+Performance test: allocated 128 MB in 0.73 cpu secs
+Performance test: average time: 0.77 cpu secs
 Performance test: running WITH mm_limit
-Performance test: allocated 256 MB in 2.25 secs
-Performance test: allocated 256 MB in 2.23 secs
-Performance test: allocated 256 MB in 2.26 secs
-Performance test: average time: 2.25 secs
+Performance test: allocated 128 MB in 0.79 cpu secs
+Performance test: allocated 128 MB in 0.81 cpu secs
+Performance test: allocated 128 MB in 0.75 cpu secs
+Performance test: allocated 128 MB in 0.73 cpu secs
+Performance test: allocated 128 MB in 0.80 cpu secs
+Performance test: average time: 0.78 cpu secs
+
+[33m>> Running functionality tests...[0m
 adb shell "su 10060 /data/misc/killer_test"
 Syscalled with allowed time: 0ms
 I survived ONCE
@@ -73,18 +81,30 @@ I survived ONCE
 I survived TWICE
 I survived THRICE
 Now I will allocate memory in an infinite loop!
+
+[33m>> Running prj2_test...[0m
 adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70 100000000 40000000 40000000 40000000 40000000"
 pw->uid=10070, pw->name=u0_a70
 @@@@uid: 10070
-@@@@pid: 1914
-child process start malloc: pid=1917, uid=10070, mem=40000000
-child process start malloc: pid=1916, uid=10070, mem=40000000
-child process start malloc: pid=1915, uid=10070, mem=40000000
-child process start malloc: pid=1918, uid=10070, mem=40000000
-child process finish malloc: pid=1915, uid=10070, mem=40000000
-child process finish malloc: pid=1916, uid=10070, mem=40000000
+@@@@pid: 1078
+child process start malloc: pid=1081, uid=10070, mem=40000000
+child process start malloc: pid=1080, uid=10070, mem=40000000
+child process start malloc: pid=1079, uid=10070, mem=40000000
+child process start malloc: pid=1082, uid=10070, mem=40000000
+child process finish malloc: pid=1081, uid=10070, mem=40000000
+child process finish malloc: pid=1082, uid=10070, mem=40000000
+adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70  10000000  4000000  4000000  4000000  4000000"
+pw->uid=10070, pw->name=u0_a70
+@@@@uid: 10070
+@@@@pid: 1088
+child process start malloc: pid=1091, uid=10070, mem=4000000
+child process start malloc: pid=1090, uid=10070, mem=4000000
+child process start malloc: pid=1089, uid=10070, mem=4000000
+child process start malloc: pid=1092, uid=10070, mem=4000000
+child process finish malloc: pid=1092, uid=10070, mem=4000000
+child process finish malloc: pid=1091, uid=10070, mem=4000000
 
 
->> Cleaning...
+[33m>> Cleaning...[0m
 adb shell rmmod /data/misc/mm_limit_syscall.ko 
 make[1]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2'

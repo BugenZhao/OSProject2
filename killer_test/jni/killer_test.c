@@ -16,8 +16,8 @@ struct mm_limit_user_struct {
 
 #define TEN_MB (10 << 20)
 
-#define PERF_TIMES 3
-#define PERF_SIZE (1 << 28)
+#define PERF_TIMES 5
+#define PERF_SIZE (1 << 27)
 
 #define bugen_assert(case, lhs, op, rhs, format)                          \
     if (!((lhs)op(rhs))) {                                                \
@@ -80,11 +80,11 @@ static int performance_test(void) {
         if (p != NULL) memset(p, 0x88, PERF_SIZE);
         end = clock();
         time_sum += (time = (end - start) / (double)CLOCKS_PER_SEC);
-        printf("Performance test: allocated %u MB in %.2lf secs\n",
+        printf("Performance test: allocated %u MB in %.2lf cpu secs\n",
                (PERF_SIZE >> 20), time);
         free(p);
     }
-    printf("Performance test: average time: %.2lf secs\n",
+    printf("Performance test: average time: %.2lf cpu secs\n",
            time_sum / PERF_TIMES);
 
     time_sum = .0;
@@ -97,11 +97,11 @@ static int performance_test(void) {
         if (p != NULL) memset(p, 0x88, PERF_SIZE);
         end = clock();
         time_sum += (time = (end - start) / (double)CLOCKS_PER_SEC);
-        printf("Performance test: allocated %u MB in %.2lf secs\n",
+        printf("Performance test: allocated %u MB in %.2lf cpu secs\n",
                (PERF_SIZE >> 20), time);
         free(p);
     }
-    printf("Performance test: average time: %.2lf secs\n",
+    printf("Performance test: average time: %.2lf cpu secs\n",
            time_sum / PERF_TIMES);
     return 0;
 }
