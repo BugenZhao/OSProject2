@@ -61,7 +61,7 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
     }
 
     /* check if the limit is already in the list */
-    write_lock(&mm_limit_rwlock);
+    write_lock_irq(&mm_limit_rwlock);
     list_for_each_entry(p, &init_mm_limit.list, list) {
         if (p->uid == uid) {
             if (mm_max == ULONG_MAX) {
@@ -86,7 +86,7 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
             break;
         }
     }
-    write_unlock(&mm_limit_rwlock);
+    write_unlock_irq(&mm_limit_rwlock);
 
     /* limit not found in list, add it */
     if (!ok && mm_max != ULONG_MAX) {
@@ -107,9 +107,9 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
         tmp->time_allow_exceed = time_allow_exceed;
 
         /* add it to list */
-        write_lock(&mm_limit_rwlock);
+        write_lock_irq(&mm_limit_rwlock);
         list_add(&tmp->list, &init_mm_limit.list);
-        write_unlock(&mm_limit_rwlock);
+        write_unlock_irq(&mm_limit_rwlock);
 
         printk(KERN_INFO
                "*** Added: uid=%u, mm_max=%lu, time_allow_exceed=%lu ***\n",
@@ -120,13 +120,13 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
     /* print the whole list for debugging*/
     if (ok) {
         printk(KERN_INFO "*** Current list: <begin>\n");
-        read_lock(&mm_limit_rwlock);
+        read_lock_irq(&mm_limit_rwlock);
         list_for_each_entry(p, &init_mm_limit.list, list) {
             printk(KERN_INFO
                    "  %2d: uid=%u, mm_max=%lu, time_allow_exceed=%lu\n",
                    i++, p->uid, p->mm_max, p->time_allow_exceed);
         }
-        read_unlock(&mm_limit_rwlock);
+        read_unlock_irq(&mm_limit_rwlock);
         printk(KERN_INFO "                  <end> ***\n");
     }
 
@@ -146,7 +146,7 @@ static int get_mm_limit_syscall(uid_t uid,
     int ok = 0;
 
     /* check if the limit is in the list, then copy to kfound */
-    read_lock(&mm_limit_rwlock);
+    read_lock_irq(&mm_limit_rwlock);
     list_for_each_entry(p, &init_mm_limit.list, list) {
         if (p->uid == uid) {
             kfound.mm_max = p->mm_max;
@@ -155,7 +155,7 @@ static int get_mm_limit_syscall(uid_t uid,
             break;
         }
     }
-    read_unlock(&mm_limit_rwlock);
+    read_unlock_irq(&mm_limit_rwlock);
 
     /* copy to user */
     if (ok) {
