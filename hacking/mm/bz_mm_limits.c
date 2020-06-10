@@ -10,23 +10,8 @@ DEFINE_RWLOCK(mm_limit_rwlock);
 EXPORT_SYMBOL(mm_limit_rwlock);
 EXPORT_SYMBOL(init_mm_limit);
 
-/* get the memory limit for the given uid */
-unsigned long get_mm_limit(uid_t uid) {
-    struct mm_limit_struct *p;
-
-    /* lock the list */
-    read_lock_irq(&mm_limit_rwlock);
-    list_for_each_entry(p, &init_mm_limit.list, list) {
-        if (p->uid == uid) {
-            read_unlock_irq(&mm_limit_rwlock);
-            return p->mm_max;
-        }
-    }
-    /* no uid found */
-    read_unlock_irq(&mm_limit_rwlock);
-    return ULONG_MAX;
-}
-
+/* find the mm_limit_struct for the given uid and lock the list, if not found,
+ * return NULL with list unlocked */
 struct mm_limit_struct *find_lock_mm_limit_struct(uid_t uid) {
     struct mm_limit_struct *p;
 
@@ -35,7 +20,7 @@ struct mm_limit_struct *find_lock_mm_limit_struct(uid_t uid) {
     list_for_each_entry(p, &init_mm_limit.list, list) {
         if (p->uid == uid) { return p; }
     }
-    /* no uid found */
+    /* uid not found */
     write_unlock_irq(&mm_limit_rwlock);
     return NULL;
 }
@@ -53,7 +38,7 @@ int set_mm_limit_waiting(uid_t uid, int v) {
             return 0;
         }
     }
-    /* no uid found */
+    /* uid not found */
     write_unlock_irq(&mm_limit_rwlock);
     return -2;
 }
@@ -70,7 +55,7 @@ int get_mm_limit_waiting(uid_t uid) {
             return p->waiting;
         }
     }
-    /* no uid found */
+    /* uid not found */
     read_unlock_irq(&mm_limit_rwlock);
     return -2;
 }
@@ -86,17 +71,17 @@ long long bz_start_timer(uid_t uid, void (*function)(unsigned long),
     write_lock_irq(&mm_limit_rwlock);
     list_for_each_entry(p, &init_mm_limit.list, list) {
         if (p->uid == uid) {
-            /* custom_time, or time_allow_exceed? */
+            /* either custom_time, or time_allow_exceed ? */
             unsigned time = custom_time ? custom_time : p->time_allow_exceed;
 
             if (time == 0) {
-                /* may disallow exceeding */
+                /* may not want to start the timer */
                 write_unlock_irq(&mm_limit_rwlock);
                 return -1;
             }
 
             init_timer(p->timer);               /* init the timer */
-            p->timer->expires = jiffies + time; /* set expires */
+            p->timer->expires = jiffies + time; /* set expiration time */
             p->timer->data = uid;               /* argument to the callback */
             p->timer->function = function;      /* callback */
             p->waiting = 1;      /* killer should be waiting from now */
@@ -106,9 +91,7 @@ long long bz_start_timer(uid_t uid, void (*function)(unsigned long),
             return time;
         }
     }
-    /* no uid found */
+    /* uid not found */
     write_unlock_irq(&mm_limit_rwlock);
     return -2;
 }
-
-EXPORT_SYMBOL(get_mm_limit);

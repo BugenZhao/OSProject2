@@ -7,13 +7,14 @@
 #include <linux/timer.h>
 #include <linux/types.h>
 
+/* mm_limit info for user */
 struct mm_limit_user_struct {
     unsigned long mm_max;
     unsigned long time_allow_exceed_ms;
 };
 
 #ifdef __KERNEL__
-/* Struct definition of mm_limit's */
+/* struct definition of mm_limit */
 struct mm_limit_struct {
     uid_t uid;                       /* user id */
     unsigned long mm_max;            /* memory limit for this user in bytes */
@@ -31,13 +32,14 @@ struct mm_limit_struct {
 /* initialization for the head of mm_limit list */
 #define INIT_MM_LIMIT(mm_limit) \
     { .list = LIST_HEAD_INIT(mm_limit.list) }
+
 /* the head of mm_limit list */
 extern struct mm_limit_struct init_mm_limit;
+
 /* rwlock for mm_limit list */
 extern rwlock_t mm_limit_rwlock;
 
 /* declarations */
-unsigned long get_mm_limit(uid_t uid);
 int set_mm_limit_waiting(uid_t uid, int v);
 int get_mm_limit_waiting(uid_t uid);
 struct mm_limit_struct *find_lock_mm_limit_struct(uid_t uid);

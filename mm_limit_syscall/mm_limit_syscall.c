@@ -30,9 +30,7 @@ static unsigned long **find_syscall_table(void) {
     unsigned long offset;
     unsigned long **sct;
 
-    /* sys call num maybe different
-     * check in unistd.h
-     * __NR_close will use 64bit version unistd.h by default when build LKM */
+    /* find syscall table by __NR_close */
     for (offset = PAGE_OFFSET; offset < ULLONG_MAX; offset += sizeof(void *)) {
         sct = (unsigned long **)offset;
         if (sct[__NR_close] == (unsigned long *)sys_close) {
@@ -57,7 +55,8 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
 
     /* avoid illegal calling */
     if (uid < 10000) {
-        printk(KERN_ERR "*** Attempted to limit user with uid < 10000. Aborted. ***\n");
+        printk(KERN_ERR
+               "*** Attempted to limit user with uid < 10000. Aborted. ***\n");
         return -EACCES;
     }
 
@@ -65,16 +64,22 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
     write_lock(&mm_limit_rwlock);
     list_for_each_entry(p, &init_mm_limit.list, list) {
         if (p->uid == uid) {
-            /* update mm_max and time_allow_exceed */
             if (mm_max == ULONG_MAX) {
+                /* remove */
                 list_del(&p->list);
+                kfree(p->timer);
                 kfree(p);
                 printk(KERN_INFO "*** Removed: uid=%u ***\n", p->uid);
             } else {
+                /* update mm_max and time_allow_exceed */
                 p->mm_max = mm_max;
                 p->time_allow_exceed = time_allow_exceed;
+                /* reset last record for heuristic */
+                p->last_time = jiffies;
+                p->last_mm = 0;
                 printk(KERN_INFO
-                       "*** Updated: uid=%u, mm_max=%lu, time_allow_exceed=%lu ***\n",
+                       "*** Updated: uid=%u, mm_max=%lu, time_allow_exceed=%lu "
+                       "***\n",
                        p->uid, p->mm_max, p->time_allow_exceed);
             }
             ok = 1;
@@ -93,23 +98,26 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
         tmp->mm_max = mm_max; /* memory limit */
         tmp->waiting = 0;     /* killer waiting flag */
 
+        /* reset the last record for heuristic  */
         tmp->last_mm = 0;
-        tmp->last_time = jiffies;
+        tmp->last_time = jiffies; /* NOW */
 
         /* just allocate memory for timer but keep it uninitialized */
         tmp->timer = kmalloc(sizeof(struct timer_list), GFP_KERNEL);
         tmp->time_allow_exceed = time_allow_exceed;
 
+        /* add it to list */
         write_lock(&mm_limit_rwlock);
-        list_add(&tmp->list, &init_mm_limit.list); /* add it to list */
+        list_add(&tmp->list, &init_mm_limit.list);
         write_unlock(&mm_limit_rwlock);
 
-        printk(KERN_INFO "*** Added: uid=%u, mm_max=%lu, time_allow_exceed=%lu ***\n",
+        printk(KERN_INFO
+               "*** Added: uid=%u, mm_max=%lu, time_allow_exceed=%lu ***\n",
                uid, mm_max, time_allow_exceed);
         ok = 1;
     }
 
-    /* print the whole list */
+    /* print the whole list for debugging*/
     if (ok) {
         printk(KERN_INFO "*** Current list: <begin>\n");
         read_lock(&mm_limit_rwlock);
@@ -130,6 +138,7 @@ static int set_mm_limit_syscall(uid_t uid, unsigned long mm_max) {
     return set_mm_limit_time_syscall(uid, mm_max, 0);
 }
 
+/* get_mm_limit system call, will store the info in *ufound */
 static int get_mm_limit_syscall(uid_t uid,
                                 struct mm_limit_user_struct *ufound) {
     struct mm_limit_struct *p;
@@ -163,7 +172,7 @@ static int mm_limit_init(void) {
     /* find the syscall table */
     syscall_table = find_syscall_table();
 
-    /* save and replace two calls */
+    /* save and replace 3 calls */
     oldcall_first = (int (*)(void))(syscall_table[__NR_mm_limit]);
     oldcall_second = (int (*)(void))(syscall_table[__NR_mm_limit_time]);
     oldcall_third = (int (*)(void))(syscall_table[__NR_get_mm_limit]);
@@ -178,7 +187,7 @@ static int mm_limit_init(void) {
 
 /* exit of module */
 static void mm_limit_exit(void) {
-    /* restore two calls */
+    /* restore 3 calls */
     syscall_table[__NR_mm_limit] = (unsigned long *)oldcall_first;
     syscall_table[__NR_mm_limit_time] = (unsigned long *)oldcall_second;
     syscall_table[__NR_get_mm_limit] = (unsigned long *)oldcall_third;

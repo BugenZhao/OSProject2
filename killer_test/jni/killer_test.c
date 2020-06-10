@@ -6,9 +6,10 @@
 #include <time.h>
 #include <unistd.h>
 
-/* # of syscalls */
+/* the # of syscalls */
 #include "../../common/syscall_num.h"
 
+/* mm_limit info for user */
 struct mm_limit_user_struct {
     unsigned long mm_max;
     unsigned long time_allow_exceed_ms;
@@ -16,9 +17,11 @@ struct mm_limit_user_struct {
 
 #define TEN_MB (10 << 20)
 
+/* for performance test */
 #define PERF_TIMES 10
 #define PERF_SIZE (1 << 28)
 
+/* test assertion utility */
 #define bugen_assert(case, lhs, op, rhs, format)                          \
     if (!((lhs)op(rhs))) {                                                \
         fprintf(stderr,                                                   \
@@ -28,6 +31,7 @@ struct mm_limit_user_struct {
         exit(-1);                                                         \
     }
 
+/* test behaviors of system calls */
 int syscall_test(void) {
     int ret;
     struct mm_limit_user_struct buf;
@@ -51,6 +55,10 @@ int syscall_test(void) {
     bugen_assert("get 2", buf.mm_max, ==, TEN_MB * 20, "%lu");
     bugen_assert("get 2", buf.time_allow_exceed_ms, ==, 1000, "%lu");
 
+    /* test get to NULL */
+    ret = syscall(__NR_get_mm_limit, 10060, NULL); 
+    bugen_assert("get after removal", ret, <, 0, "%d");
+
     /* test removal */
     ret = syscall(__NR_mm_limit, 10060, ULONG_MAX);
     bugen_assert("removal", ret, ==, 0, "%d");
@@ -59,19 +67,18 @@ int syscall_test(void) {
     ret = syscall(__NR_get_mm_limit, 10060, &buf);
     bugen_assert("get after removal", ret, <, 0, "%d");
 
-    ret = syscall(__NR_get_mm_limit, 10060, NULL);
-    bugen_assert("get after removal", ret, <, 0, "%d");
-
     printf("Syscall test: all tests passed\n");
     return 0;
 }
 
+/* test performance */
 static int performance_test(void) {
     clock_t start, end;
     char *p;
     double time, time_sum;
     int times;
 
+    /* do two malloc's to avoid unstable results */
     printf("Performance test: preparing...\n");
     p = malloc(PERF_SIZE);
     if (p != NULL) memset(p, 0x88, PERF_SIZE);
@@ -80,6 +87,7 @@ static int performance_test(void) {
     if (p != NULL) memset(p, 0x88, PERF_SIZE);
     free(p);
 
+    /* test with mm_limit */
     time_sum = .0;
     syscall(__NR_mm_limit, getuid(), ULONG_MAX - 1);
     printf("Performance test: running WITH mm_limit\n");
@@ -97,6 +105,7 @@ static int performance_test(void) {
     printf("Performance test: average time: %.2lf cpu secs\n",
            time_sum / PERF_TIMES);
 
+    /* test without mm_limit */
     time_sum = .0;
     syscall(__NR_mm_limit, getuid(), ULONG_MAX);
     printf("Performance test: running WITHOUT mm_limit\n");
@@ -120,6 +129,7 @@ static int performance_test(void) {
 int main(int argc, char **argv) {
     int *p, *q, i, time = 0;
 
+    /* test mode */
     if (argc >= 2 && strcmp(argv[1], "test") == 0) {
         printf("Test mode (uid: %u)\n", getuid());
         syscall_test();
@@ -135,6 +145,7 @@ int main(int argc, char **argv) {
     }
     printf("Syscalled with allowed time: %dms\n", time);
 
+    /* start testing */
 #define LIMIT_1 TEN_MB * 2
     p = malloc(LIMIT_1);
     for (i = 0; i < LIMIT_1 / 4; i++) { p[i] = i; }
