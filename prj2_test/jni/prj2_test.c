@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <pwd.h>
 #include <signal.h>
+#include "../../common/syscall_num.h"
 
 void test1() {
     printf("@@@@uid: %d\n", getuid());
@@ -22,7 +23,7 @@ int main(int argc, char **argv) {
 
   int limit = atoi(argv[2]);
   pid_t *pids = (pid_t*)malloc((argc-3)*sizeof(pid_t));
-  syscall(356, pwd_struct->pw_uid, limit);
+  syscall(__NR_mm_limit, pwd_struct->pw_uid, limit);
   int i, mem;
   test1();
   for (i = 3; i < argc; ++i) {

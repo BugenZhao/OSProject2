@@ -48,18 +48,30 @@ int bz_oom_worker(uid_t uid, int order, int strict) {
     struct task_struct *task;
     struct task_struct *selected = NULL; /* selected task */
     struct mm_struct *mm = NULL;         /* mm_struct of selected */
+    struct mm_limit_struct *found = NULL;
 
     unsigned long max_rss = 0; /* max rss of the user */
     unsigned long sum_rss = 0; /* sum rss of the user */
     unsigned long rss = 0;
-    unsigned long mm_limit; /* memory limit of the user */
+    unsigned long mm_max; /* memory limit of the user */
+    unsigned long last_time, last_mm;
 
     int count = 0; /* killed tasks */
 
     /* check if limit exists */
-    if ((mm_limit = get_mm_limit(uid)) == ULONG_MAX) { return 0; }
+    found = find_lock_mm_limit_struct(uid);
+    if (found == NULL) { return 0; }
+
     /* check if killer should wait/ignore this time */
-    if (get_mm_limit_waiting(uid)) { return 0; }
+    if (found->waiting) {
+        write_unlock_irq(&mm_limit_rwlock);
+        return 0;
+    }
+
+    /* get info & status */
+    mm_max = found->mm_max;
+    last_time = found->last_time;
+    last_mm = found->last_mm;
 
     /* get tasks of the user */
     read_lock_irq(&tasklist_lock);
@@ -72,7 +84,9 @@ int bz_oom_worker(uid_t uid, int order, int strict) {
             /* get rss of task */
             rss = get_mm_rss(p->mm);
             /* add the pages that will be allocated */
-            if (p->pid == current->pid) { rss += 1 << order; }
+            if (p->pid == current->pid && !(p->flags & PF_EXITING)) {
+                rss += 1 << order;
+            }
 
             sum_rss += rss;
             if (rss > max_rss) {
@@ -84,21 +98,42 @@ int bz_oom_worker(uid_t uid, int order, int strict) {
     }
     read_unlock_irq(&tasklist_lock);
 
+    /* write new status */
+    found->last_time = jiffies;
+    found->last_mm = (sum_rss << PAGE_SHIFT);
+    write_unlock_irq(&mm_limit_rwlock);
+
     /* check if limit is exceeded */
-    if ((sum_rss << PAGE_SHIFT) <= mm_limit || !selected) {
+    if ((sum_rss << PAGE_SHIFT) <= mm_max || !selected) {
         if (strict) {
             printk(KERN_INFO "*** No process to select for user %u now. ***\n",
                    uid);
         } else {
+            /* heuristic part */
             /* expr: 128 MB, 0.8 secs; set: 4 MB, 1 tick = 0.01 secs */
-            int wait_time = mm_limit >> 22;
-            if (wait_time > HZ / 2) wait_time = HZ / 2;
-            if (wait_time)
-                bz_start_timer(uid, &bz_oom_reset_waiting, wait_time);
+            unsigned long wait_time = HZ / 2;
+            unsigned long mm_rem = mm_max - (sum_rss << PAGE_SHIFT);
+            unsigned long elapsed = jiffies - last_time;
 
-            /* printk(KERN_INFO
-                   "*** Pause checking for user %u for %d ticks. ***\n",
-                   uid, wait_time); */
+            if ((sum_rss << PAGE_SHIFT) > last_mm) {
+                unsigned long long a = (unsigned long long)mm_rem * elapsed;
+                unsigned long long b = (sum_rss << PAGE_SHIFT) - last_mm;
+                /* printk("*** %llu * %lu / %llu = ",
+                       (long long)(mm_max - (sum_rss << PAGE_SHIFT)),
+                       (jiffies - last_time), b); */
+                do_div(a, b);
+                /* printk("%llu ***\n", a); */
+                wait_time = (unsigned long)a;
+            }
+            wait_time = min3(wait_time, (unsigned long)(mm_rem >> 22),
+                             (unsigned long)HZ / 2);
+
+            if (wait_time > 0) {
+                bz_start_timer(uid, &bz_oom_reset_waiting, wait_time);
+                printk(KERN_INFO
+                       "*** Pause checking for user %u for %lu ticks. ***\n",
+                       uid, wait_time);
+            }
         }
         return 0;
     }
@@ -135,9 +170,9 @@ int bz_oom_worker(uid_t uid, int order, int strict) {
     mm = selected->mm;
     printk(KERN_ERR
            "*** Selected '%s' (%d) of user %u. "
-           "Stats: mm=%lu, mm_sum=%lu, mm_limit=%lu ***\n",
+           "Stats: mm=%lu, mm_sum=%lu, mm_max=%lu ***\n",
            selected->comm, selected->pid, uid, max_rss << PAGE_SHIFT,
-           sum_rss << PAGE_SHIFT, mm_limit);
+           sum_rss << PAGE_SHIFT, mm_max);
     task_unlock(selected);
 
     /* kill the processes sharing the same memory with 'selected' */
@@ -167,7 +202,7 @@ int bz_oom_worker(uid_t uid, int order, int strict) {
         printk(KERN_ERR
                "*** uid=%u, uRSS=%lupages=%lubytes, mm_max=%lubytes; pid=%u, "
                "pRSS=%lupages=%lubytes ***\n",
-               uid, sum_rss, sum_rss << PAGE_SHIFT, mm_limit, selected->pid,
+               uid, sum_rss, sum_rss << PAGE_SHIFT, mm_max, selected->pid,
                max_rss, max_rss << PAGE_SHIFT);
         set_tsk_thread_flag(selected, TIF_MEMDIE);
         /* send SIGKILL */

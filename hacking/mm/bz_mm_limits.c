@@ -27,6 +27,19 @@ unsigned long get_mm_limit(uid_t uid) {
     return ULONG_MAX;
 }
 
+struct mm_limit_struct *find_lock_mm_limit_struct(uid_t uid) {
+    struct mm_limit_struct *p;
+
+    /* lock the list */
+    write_lock_irq(&mm_limit_rwlock);
+    list_for_each_entry(p, &init_mm_limit.list, list) {
+        if (p->uid == uid) { return p; }
+    }
+    /* no uid found */
+    write_unlock_irq(&mm_limit_rwlock);
+    return NULL;
+}
+
 /* set the killer's waiting state for the given uid to v */
 int set_mm_limit_waiting(uid_t uid, int v) {
     struct mm_limit_struct *p;

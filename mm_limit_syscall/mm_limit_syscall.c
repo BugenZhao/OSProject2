@@ -57,7 +57,7 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
 
     /* avoid illegal calling */
     if (uid < 10000) {
-        printk(KERN_ERR "Attempted to limit user with uid < 10000. Aborted.\n");
+        printk(KERN_ERR "*** Attempted to limit user with uid < 10000. Aborted. ***\n");
         return -EACCES;
     }
 
@@ -69,12 +69,12 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
             if (mm_max == ULONG_MAX) {
                 list_del(&p->list);
                 kfree(p);
-                printk(KERN_INFO "Removed: uid=%u\n", p->uid);
+                printk(KERN_INFO "*** Removed: uid=%u ***\n", p->uid);
             } else {
                 p->mm_max = mm_max;
                 p->time_allow_exceed = time_allow_exceed;
                 printk(KERN_INFO
-                       "Updated: uid=%u, mm_max=%lu, time_allow_exceed=%lu\n",
+                       "*** Updated: uid=%u, mm_max=%lu, time_allow_exceed=%lu ***\n",
                        p->uid, p->mm_max, p->time_allow_exceed);
             }
             ok = 1;
@@ -93,6 +93,9 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
         tmp->mm_max = mm_max; /* memory limit */
         tmp->waiting = 0;     /* killer waiting flag */
 
+        tmp->last_mm = 0;
+        tmp->last_time = jiffies;
+
         /* just allocate memory for timer but keep it uninitialized */
         tmp->timer = kmalloc(sizeof(struct timer_list), GFP_KERNEL);
         tmp->time_allow_exceed = time_allow_exceed;
@@ -101,14 +104,14 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
         list_add(&tmp->list, &init_mm_limit.list); /* add it to list */
         write_unlock(&mm_limit_rwlock);
 
-        printk(KERN_INFO "Added: uid=%u, mm_max=%lu, time_allow_exceed=%lu\n",
+        printk(KERN_INFO "*** Added: uid=%u, mm_max=%lu, time_allow_exceed=%lu ***\n",
                uid, mm_max, time_allow_exceed);
         ok = 1;
     }
 
     /* print the whole list */
     if (ok) {
-        printk(KERN_INFO "Current list:\n");
+        printk(KERN_INFO "*** Current list: <begin>\n");
         read_lock(&mm_limit_rwlock);
         list_for_each_entry(p, &init_mm_limit.list, list) {
             printk(KERN_INFO
@@ -116,6 +119,7 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
                    i++, p->uid, p->mm_max, p->time_allow_exceed);
         }
         read_unlock(&mm_limit_rwlock);
+        printk(KERN_INFO "                  <end> ***\n");
     }
 
     return ok ? 0 : -ENODATA;

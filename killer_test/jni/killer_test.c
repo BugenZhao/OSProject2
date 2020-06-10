@@ -16,7 +16,7 @@ struct mm_limit_user_struct {
 
 #define TEN_MB (10 << 20)
 
-#define PERF_TIMES 5
+#define PERF_TIMES 10
 #define PERF_SIZE (1 << 27)
 
 #define bugen_assert(case, lhs, op, rhs, format)                          \
