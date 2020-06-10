@@ -17,7 +17,7 @@ struct mm_limit_user_struct {
 #define TEN_MB (10 << 20)
 
 #define PERF_TIMES 10
-#define PERF_SIZE (1 << 27)
+#define PERF_SIZE (1 << 28)
 
 #define bugen_assert(case, lhs, op, rhs, format)                          \
     if (!((lhs)op(rhs))) {                                                \
@@ -69,23 +69,16 @@ int syscall_test(void) {
 static int performance_test(void) {
     clock_t start, end;
     char *p;
-    double time, time_sum = .0;
+    double time, time_sum;
     int times;
 
-    printf("Performance test: running WITHOUT mm_limit\n");
-    times = PERF_TIMES;
-    while (times--) {
-        start = clock();
-        p = malloc(PERF_SIZE);
-        if (p != NULL) memset(p, 0x88, PERF_SIZE);
-        end = clock();
-        time_sum += (time = (end - start) / (double)CLOCKS_PER_SEC);
-        printf("Performance test: allocated %u MB in %.2lf cpu secs\n",
-               (PERF_SIZE >> 20), time);
-        free(p);
-    }
-    printf("Performance test: average time: %.2lf cpu secs\n",
-           time_sum / PERF_TIMES);
+    printf("Performance test: preparing...\n");
+    p = malloc(PERF_SIZE);
+    if (p != NULL) memset(p, 0x88, PERF_SIZE);
+    free(p);
+    p = malloc(PERF_SIZE);
+    if (p != NULL) memset(p, 0x88, PERF_SIZE);
+    free(p);
 
     time_sum = .0;
     syscall(__NR_mm_limit, getuid(), ULONG_MAX - 1);
@@ -103,6 +96,24 @@ static int performance_test(void) {
     }
     printf("Performance test: average time: %.2lf cpu secs\n",
            time_sum / PERF_TIMES);
+
+    time_sum = .0;
+    syscall(__NR_mm_limit, getuid(), ULONG_MAX);
+    printf("Performance test: running WITHOUT mm_limit\n");
+    times = PERF_TIMES;
+    while (times--) {
+        start = clock();
+        p = malloc(PERF_SIZE);
+        if (p != NULL) memset(p, 0x88, PERF_SIZE);
+        end = clock();
+        time_sum += (time = (end - start) / (double)CLOCKS_PER_SEC);
+        printf("Performance test: allocated %u MB in %.2lf cpu secs\n",
+               (PERF_SIZE >> 20), time);
+        free(p);
+    }
+    printf("Performance test: average time: %.2lf cpu secs\n",
+           time_sum / PERF_TIMES);
+
     return 0;
 }
 

@@ -27,6 +27,8 @@ make -C ./prj2_test
 make[2]: Entering directory '/home/bugenzhao/OSProjects/OSProject2/prj2_test'
 cd jni && ndk-build
 make[3]: Entering directory '/home/bugenzhao/OSProjects/OSProject2/prj2_test/jni'
+[armeabi] Compile thumb  : prj2_test <= prj2_test.c
+[armeabi] Executable     : prj2_test
 [armeabi] Install        : prj2_test => libs/armeabi/prj2_test
 make[3]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/prj2_test/jni'
 make[2]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/prj2_test'
@@ -52,30 +54,31 @@ adb shell "chmod +x /data/misc/killer_test"
 adb shell "su 10060 /data/misc/killer_test test"
 Test mode (uid: 10060)
 Syscall test: all tests passed
-Performance test: running WITHOUT mm_limit
-Performance test: allocated 128 MB in 0.65 cpu secs
-Performance test: allocated 128 MB in 0.65 cpu secs
-Performance test: allocated 128 MB in 0.63 cpu secs
-Performance test: allocated 128 MB in 0.67 cpu secs
-Performance test: allocated 128 MB in 0.95 cpu secs
-Performance test: allocated 128 MB in 0.87 cpu secs
-Performance test: allocated 128 MB in 0.82 cpu secs
-Performance test: allocated 128 MB in 0.83 cpu secs
-Performance test: allocated 128 MB in 0.73 cpu secs
-Performance test: allocated 128 MB in 0.69 cpu secs
-Performance test: average time: 0.75 cpu secs
+Performance test: preparing...
 Performance test: running WITH mm_limit
-Performance test: allocated 128 MB in 0.71 cpu secs
-Performance test: allocated 128 MB in 0.70 cpu secs
-Performance test: allocated 128 MB in 0.66 cpu secs
-Performance test: allocated 128 MB in 0.68 cpu secs
-Performance test: allocated 128 MB in 0.75 cpu secs
-Performance test: allocated 128 MB in 0.88 cpu secs
-Performance test: allocated 128 MB in 0.95 cpu secs
-Performance test: allocated 128 MB in 0.89 cpu secs
-Performance test: allocated 128 MB in 0.87 cpu secs
-Performance test: allocated 128 MB in 0.85 cpu secs
-Performance test: average time: 0.79 cpu secs
+Performance test: allocated 256 MB in 1.33 cpu secs
+Performance test: allocated 256 MB in 1.30 cpu secs
+Performance test: allocated 256 MB in 1.29 cpu secs
+Performance test: allocated 256 MB in 1.29 cpu secs
+Performance test: allocated 256 MB in 1.28 cpu secs
+Performance test: allocated 256 MB in 1.32 cpu secs
+Performance test: allocated 256 MB in 1.33 cpu secs
+Performance test: allocated 256 MB in 1.33 cpu secs
+Performance test: allocated 256 MB in 1.31 cpu secs
+Performance test: allocated 256 MB in 1.28 cpu secs
+Performance test: average time: 1.31 cpu secs
+Performance test: running WITHOUT mm_limit
+Performance test: allocated 256 MB in 1.42 cpu secs
+Performance test: allocated 256 MB in 1.31 cpu secs
+Performance test: allocated 256 MB in 1.34 cpu secs
+Performance test: allocated 256 MB in 1.32 cpu secs
+Performance test: allocated 256 MB in 1.31 cpu secs
+Performance test: allocated 256 MB in 1.29 cpu secs
+Performance test: allocated 256 MB in 1.36 cpu secs
+Performance test: allocated 256 MB in 1.27 cpu secs
+Performance test: allocated 256 MB in 1.26 cpu secs
+Performance test: allocated 256 MB in 1.30 cpu secs
+Performance test: average time: 1.32 cpu secs
 
 [33m>> Running functionality tests...[0m
 adb shell "su 10060 /data/misc/killer_test"
@@ -93,26 +96,31 @@ I survived THRICE
 Now I will allocate memory in an infinite loop!
 
 [33m>> Running prj2_test...[0m
+adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70 100000000 160000000"
+pw->uid=10070, pw->name=u0_a70
+@@@@uid: 10070
+@@@@pid: 1579
+child process start malloc: pid=1580, uid=10070, mem=160000000
 adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70 100000000 40000000 40000000 40000000 40000000"
 pw->uid=10070, pw->name=u0_a70
 @@@@uid: 10070
-@@@@pid: 878
-child process start malloc: pid=882, uid=10070, mem=40000000
-child process start malloc: pid=881, uid=10070, mem=40000000
-child process start malloc: pid=880, uid=10070, mem=40000000
-child process start malloc: pid=879, uid=10070, mem=40000000
-child process finish malloc: pid=880, uid=10070, mem=40000000
-child process finish malloc: pid=882, uid=10070, mem=40000000
-adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70  10000000  4000000  4000000  4000000  4000000"
+@@@@pid: 1584
+child process start malloc: pid=1588, uid=10070, mem=40000000
+child process start malloc: pid=1587, uid=10070, mem=40000000
+child process start malloc: pid=1586, uid=10070, mem=40000000
+child process start malloc: pid=1585, uid=10070, mem=40000000
+child process finish malloc: pid=1585, uid=10070, mem=40000000
+child process finish malloc: pid=1587, uid=10070, mem=40000000
+adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70  20000000  8000000  8000000  8000000  8000000"
 pw->uid=10070, pw->name=u0_a70
 @@@@uid: 10070
-@@@@pid: 912
-child process start malloc: pid=916, uid=10070, mem=4000000
-child process start malloc: pid=915, uid=10070, mem=4000000
-child process start malloc: pid=914, uid=10070, mem=4000000
-child process start malloc: pid=913, uid=10070, mem=4000000
-child process finish malloc: pid=914, uid=10070, mem=4000000
-child process finish malloc: pid=916, uid=10070, mem=4000000
+@@@@pid: 1592
+child process start malloc: pid=1596, uid=10070, mem=8000000
+child process start malloc: pid=1595, uid=10070, mem=8000000
+child process start malloc: pid=1594, uid=10070, mem=8000000
+child process start malloc: pid=1593, uid=10070, mem=8000000
+child process finish malloc: pid=1593, uid=10070, mem=8000000
+child process finish malloc: pid=1596, uid=10070, mem=8000000
 
 
 [33m>> Cleaning...[0m

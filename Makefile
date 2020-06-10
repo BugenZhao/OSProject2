@@ -79,8 +79,9 @@ run: build upload
 	adb shell "su 10060 ${KILLER_TEST_DEST} 200"
 	adb shell "su 10060 ${KILLER_TEST_DEST} 2000"
 	@echo "\n\e[33m>> Running prj2_test...\e[0m"
+	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 160000000"
 	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 40000000 40000000 40000000 40000000"
-	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70  10000000  4000000  4000000  4000000  4000000"
+	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70  20000000  8000000  8000000  8000000  8000000"
 	@echo "\n\n\e[33m>> Cleaning...\e[0m"
 	adb shell rmmod ${MODULE_DEST}
 

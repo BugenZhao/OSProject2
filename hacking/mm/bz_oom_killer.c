@@ -82,16 +82,18 @@ int bz_oom_worker(uid_t uid, int order, int strict) {
             if (!p) continue;
 
             /* get rss of task */
-            rss = get_mm_rss(p->mm);
-            /* add the pages that will be allocated */
-            if (p->pid == current->pid && !(p->flags & PF_EXITING)) {
-                rss += 1 << order;
-            }
+            rss = get_mm_rss(p->mm) + p->mm->nr_ptes;
+            rss += get_mm_counter(p->mm, MM_SWAPENTS);
 
-            sum_rss += rss;
-            if (rss > max_rss) {
-                selected = p;
-                max_rss = rss;
+            /* add the pages that will be allocated */
+            if (p->pid == current->pid) { rss += 1 << order; }
+
+            if (!(p->flags & PF_EXITING)) {
+                sum_rss += rss;
+                if (rss > max_rss) {
+                    selected = p;
+                    max_rss = rss;
+                }
             }
             task_unlock(p);
         }
