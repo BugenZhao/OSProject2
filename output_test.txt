@@ -1,0 +1,113 @@
+make[1]: Entering directory '/home/bugenzhao/OSProjects/OSProject2'
+
+
+
+[33m>> Building...[0m
+make -C ./mm_limit_syscall KID=~/Android/kernel/goldfish
+make[2]: Entering directory '/home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall'
+make -C ~/Android/kernel/goldfish ARCH=arm CROSS_COMPILE=arm-linux-androideabi- M=/home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall modules
+make[3]: Entering directory '/home/bugenzhao/Android/kernel/goldfish'
+  CC [M]  /home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall/mm_limit_syscall.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC      /home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall/mm_limit_syscall.mod.o
+  LD [M]  /home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall/mm_limit_syscall.ko
+make[3]: Leaving directory '/home/bugenzhao/Android/kernel/goldfish'
+make[2]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/mm_limit_syscall'
+make -C ./killer_test
+make[2]: Entering directory '/home/bugenzhao/OSProjects/OSProject2/killer_test'
+cd jni && ndk-build
+make[3]: Entering directory '/home/bugenzhao/OSProjects/OSProject2/killer_test/jni'
+[armeabi] Compile thumb  : killer_test <= killer_test.c
+[armeabi] Executable     : killer_test
+[armeabi] Install        : killer_test => libs/armeabi/killer_test
+make[3]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/killer_test/jni'
+make[2]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/killer_test'
+make -C ./prj2_test
+make[2]: Entering directory '/home/bugenzhao/OSProjects/OSProject2/prj2_test'
+cd jni && ndk-build
+make[3]: Entering directory '/home/bugenzhao/OSProjects/OSProject2/prj2_test/jni'
+[armeabi] Compile thumb  : prj2_test <= prj2_test.c
+[armeabi] Executable     : prj2_test
+[armeabi] Install        : prj2_test => libs/armeabi/prj2_test
+make[3]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/prj2_test/jni'
+make[2]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2/prj2_test'
+
+
+
+[33m>> Uploading...[0m
+adb shell rmmod /data/misc/mm_limit_syscall.ko > /dev/null
+adb shell rm -f /data/misc/mm_limit_syscall.ko
+adb push ./mm_limit_syscall/mm_limit_syscall.ko /data/misc
+adb push ./killer_test/libs/armeabi/killer_test /data/misc
+adb push ./prj2_test/libs/armeabi/prj2_test /data/misc
+
+
+
+[33m>> Running...[0m
+adb shell "insmod /data/misc/mm_limit_syscall.ko && lsmod"
+Module                  Size  Used by
+mm_limit_syscall        2421  0 
+adb shell "chmod +x /data/misc/killer_test"
+
+[33m>> Running prj2_test...[0m
+adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70 100000000 160000000"
+pw->uid=10070, pw->name=u0_a70
+@@@@uid: 10070
+@@@@pid: 228
+child process start malloc: pid=231, uid=10070, mem=160000000
+adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70 100000000  10000000"
+pw->uid=10070, pw->name=u0_a70
+@@@@uid: 10070
+@@@@pid: 260
+child process start malloc: pid=262, uid=10070, mem=10000000
+child process finish malloc: pid=262, uid=10070, mem=10000000
+adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70 100000000 40000000 40000000 40000000 40000000"
+pw->uid=10070, pw->name=u0_a70
+@@@@uid: 10070
+@@@@pid: 272
+child process start malloc: pid=282, uid=10070, mem=40000000
+child process start malloc: pid=281, uid=10070, mem=40000000
+child process start malloc: pid=280, uid=10070, mem=40000000
+child process start malloc: pid=279, uid=10070, mem=40000000
+child process finish malloc: pid=280, uid=10070, mem=40000000
+child process finish malloc: pid=282, uid=10070, mem=40000000
+adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70  20000000  8000000  8000000  8000000  8000000"
+pw->uid=10070, pw->name=u0_a70
+@@@@uid: 10070
+@@@@pid: 303
+child process start malloc: pid=306, uid=10070, mem=8000000
+child process start malloc: pid=307, uid=10070, mem=8000000
+child process start malloc: pid=308, uid=10070, mem=8000000
+child process start malloc: pid=309, uid=10070, mem=8000000
+child process finish malloc: pid=307, uid=10070, mem=8000000
+child process finish malloc: pid=309, uid=10070, mem=8000000
+adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70 100000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000"
+pw->uid=10070, pw->name=u0_a70
+@@@@uid: 10070
+@@@@pid: 317
+child process start malloc: pid=326, uid=10070, mem=11000000
+child process start malloc: pid=325, uid=10070, mem=11000000
+child process start malloc: pid=327, uid=10070, mem=11000000
+child process start malloc: pid=328, uid=10070, mem=11000000
+child process start malloc: pid=329, uid=10070, mem=11000000
+child process start malloc: pid=330, uid=10070, mem=11000000
+child process start malloc: pid=324, uid=10070, mem=11000000
+child process start malloc: pid=323, uid=10070, mem=11000000
+child process start malloc: pid=322, uid=10070, mem=11000000
+child process start malloc: pid=321, uid=10070, mem=11000000
+child process start malloc: pid=320, uid=10070, mem=11000000
+child process start malloc: pid=319, uid=10070, mem=11000000
+child process finish malloc: pid=328, uid=10070, mem=11000000
+child process finish malloc: pid=330, uid=10070, mem=11000000
+child process finish malloc: pid=321, uid=10070, mem=11000000
+child process finish malloc: pid=319, uid=10070, mem=11000000
+child process finish malloc: pid=329, uid=10070, mem=11000000
+child process finish malloc: pid=320, uid=10070, mem=11000000
+child process finish malloc: pid=322, uid=10070, mem=11000000
+child process finish malloc: pid=324, uid=10070, mem=11000000
+
+
+[33m>> Cleaning...[0m
+adb shell rmmod /data/misc/mm_limit_syscall.ko 
+make[1]: Leaving directory '/home/bugenzhao/OSProjects/OSProject2'
