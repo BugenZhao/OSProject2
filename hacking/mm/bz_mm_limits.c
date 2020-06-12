@@ -76,6 +76,7 @@ long long bz_start_timer(uid_t uid, void (*function)(unsigned long),
 
             if (p->waiting) {
                 /* the timer may have been started! */
+                write_unlock_irq(&mm_limit_rwlock);
                 return -3;
             }
 
