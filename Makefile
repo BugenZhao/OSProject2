@@ -41,10 +41,14 @@ help:
 	@echo "To run the test:"
 	@echo "    0. Run 'make kernel' to update hacking files and rebuild the kernel."
 	@echo "    1. Run 'make emulator' to start the emulator."
-	@echo "    2. Run 'make testall' to run the test."
+	@echo "    2. Run 'make test' to run the test."
+	@echo "    2. Run 'make testall' to run all the tests, including my own tester."
 
 emulator:
 	emulator -avd ${AVD_NAME} -kernel ${KERNEL_ZIMG} -no-window -show-kernel
+
+test: clean
+	make run_prj2test | tee output_test.txt
 
 testall: clean
 	make run | tee output.txt
@@ -86,6 +90,19 @@ run: build upload
 	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70  20000000  8000000  8000000  8000000  8000000"
 	@echo "\n\n\e[33m>> Cleaning...\e[0m"
 	adb shell rmmod ${MODULE_DEST}
+
+run_prj2test: build upload
+	@echo "\n\n\n\e[33m>> Running...\e[0m"
+	adb shell "insmod ${MODULE_DEST} && lsmod"
+	adb shell "chmod +x ${KILLER_TEST_DEST}"
+	@echo "\n\e[33m>> Running prj2_test...\e[0m"
+	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 160000000"
+	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000  10000000"
+	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 40000000 40000000 40000000 40000000"
+	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70  20000000  8000000  8000000  8000000  8000000"
+	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000"
+	@echo "\n\n\e[33m>> Cleaning...\e[0m"
+	adb shell rmmod ${MODULE_DEST} 
 
 nokiller: build upload
 	@echo "\n\e[33m>> Running Bugen's tests... mm_limit should be ignored\e[0m"
