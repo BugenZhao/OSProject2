@@ -74,13 +74,17 @@ long long bz_start_timer(uid_t uid, void (*function)(unsigned long),
             /* either custom_time, or time_allow_exceed ? */
             unsigned time = custom_time ? custom_time : p->time_allow_exceed;
 
+            if (p->waiting) {
+                /* the timer may have been started! */
+                return -3;
+            }
+
             if (time == 0) {
                 /* may not want to start the timer */
                 write_unlock_irq(&mm_limit_rwlock);
                 return -1;
             }
 
-            init_timer(p->timer);               /* init the timer */
             p->timer->expires = jiffies + time; /* set expiration time */
             p->timer->data = uid;               /* argument to the callback */
             p->timer->function = function;      /* callback */

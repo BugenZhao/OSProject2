@@ -143,9 +143,9 @@ int bz_oom_worker(uid_t uid, int order, int strict) {
             if (wait_time > 0) {
                 /* start a timer with callback which reset waiting */
                 bz_start_timer(uid, &bz_oom_reset_waiting, wait_time);
-                printk(KERN_INFO
+                /* printk(KERN_INFO
                        "*** Pause checking for user %u for %lu ticks. ***\n",
-                       uid, wait_time);
+                       uid, wait_time); */
             }
         }
         return 0;

@@ -21,9 +21,9 @@ PRJ2_TEST_DEST=${DEST_DIR}/${PRJ2_TEST_NAME}
 
 HACKING_LIST=					\
 Kconfig 						\
+include/linux/bz_mm_limits.h 	\
 mm/bz_mm_limits.c 				\
 mm/Makefile 					\
-include/linux/bz_mm_limits.h 	\
 mm/page_alloc.c 				\
 mm/bz_oom_killer.c
 
@@ -72,16 +72,18 @@ run: build upload
 	@echo "\n\n\n\e[33m>> Running...\e[0m"
 	adb shell "insmod ${MODULE_DEST} && lsmod"
 	adb shell "chmod +x ${KILLER_TEST_DEST}"
-	@echo "\n\e[33m>> Running syscall tests and performance tests...\e[0m"
-	adb shell "su 10060 ${KILLER_TEST_DEST} test"
-	@echo "\n\e[33m>> Running functionality tests...\e[0m"
-	adb shell "su 10060 ${KILLER_TEST_DEST}"
-	adb shell "su 10060 ${KILLER_TEST_DEST} 200"
-	adb shell "su 10060 ${KILLER_TEST_DEST} 2000"
-	@echo "\n\e[33m>> Running prj2_test...\e[0m"
-	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 160000000"
-	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 40000000 40000000 40000000 40000000"
-	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70  20000000  8000000  8000000  8000000  8000000"
+	@echo "\n\e[33m>> Running Bugen's tests...\e[0m"
+	# adb shell "su 10060 ${KILLER_TEST_DEST} syscall"
+	# adb shell "su 10060 ${KILLER_TEST_DEST} performance"
+	adb shell "su 10060 ${KILLER_TEST_DEST} race"
+	# @echo "\n\e[33m>> Running functionality tests...\e[0m"
+	# adb shell "su 10060 ${KILLER_TEST_DEST}"
+	# adb shell "su 10060 ${KILLER_TEST_DEST} 400"
+	# adb shell "su 10060 ${KILLER_TEST_DEST} 1000"
+	# @echo "\n\e[33m>> Running prj2_test...\e[0m"
+	# adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 160000000"
+	# adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 40000000 40000000 40000000 40000000"
+	# adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70  20000000  8000000  8000000  8000000  8000000"
 	@echo "\n\n\e[33m>> Cleaning...\e[0m"
 	adb shell rmmod ${MODULE_DEST}
 

@@ -67,6 +67,7 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
             if (mm_max == ULONG_MAX) {
                 /* remove */
                 list_del(&p->list);
+                del_timer(p->timer);
                 kfree(p->timer);
                 kfree(p);
                 printk(KERN_INFO "*** Removed: uid=%u ***\n", p->uid);
@@ -102,8 +103,9 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
         tmp->last_mm = 0;
         tmp->last_time = jiffies; /* NOW */
 
-        /* just allocate memory for timer but keep it uninitialized */
+        /* init timer */
         tmp->timer = kmalloc(sizeof(struct timer_list), GFP_KERNEL);
+        init_timer(tmp->timer);
         tmp->time_allow_exceed = time_allow_exceed;
 
         /* add it to list */

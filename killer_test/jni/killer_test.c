@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -56,7 +57,7 @@ int syscall_test(void) {
     bugen_assert("get 2", buf.time_allow_exceed_ms, ==, 1000, "%lu");
 
     /* test get to NULL */
-    ret = syscall(__NR_get_mm_limit, 10060, NULL); 
+    ret = syscall(__NR_get_mm_limit, 10060, NULL);
     bugen_assert("get after removal", ret, <, 0, "%d");
 
     /* test removal */
@@ -72,7 +73,7 @@ int syscall_test(void) {
 }
 
 /* test performance */
-static int performance_test(void) {
+int performance_test(void) {
     clock_t start, end;
     char *p;
     double time, time_sum;
@@ -126,46 +127,86 @@ static int performance_test(void) {
     return 0;
 }
 
+#define LIMIT (TEN_MB * 5)
+char *p;
+
+void race_timer_handler(int sig) {
+    syscall(__NR_mm_limit, getuid(), ULONG_MAX);
+}
+
+int race_test(void) {
+    syscall(__NR_mm_limit_time, getuid(), LIMIT, 2000);
+    p = malloc(LIMIT);
+    memset(p, 0x88, LIMIT);
+
+    signal(SIGALRM, &race_timer_handler);
+    alarm(1);
+    sleep(5);
+    printf("Race test: passed\n");
+    return 0;
+}
+
+void timer_handler(int sig) {
+    static int count = 0;
+    printf("%d ms\n", ++count * 200);
+    if (count == 3) {
+        free(p);
+        printf("Freed: 20%% of %dMB\n", LIMIT >> 20);
+    }
+    if (count == 6) {
+        p = malloc(LIMIT / 5);
+        memset(p, 0x88, LIMIT / 5);
+        printf("Allocated again: 20%% of %dMB\n", LIMIT >> 20);
+    }
+}
+
 int main(int argc, char **argv) {
-    int *p, *q, i, time = 0;
+    int i, time = 0;
+    struct itimerval timer;
+    int count = 0;
 
     /* test mode */
-    if (argc >= 2 && strcmp(argv[1], "test") == 0) {
+    if (argc >= 2) {
         printf("Test mode (uid: %u)\n", getuid());
-        syscall_test();
-        performance_test();
-        exit(0);
+        if (strcmp(argv[1], "syscall") == 0) {
+            syscall_test();
+            exit(0);
+        } else if (strcmp(argv[1], "performance") == 0) {
+            performance_test();
+            exit(0);
+        } else if (strcmp(argv[1], "race") == 0) {
+            race_test();
+            exit(0);
+        }
+        printf("Nothing to test\n");
     }
 
     /* get time_allow_exceed from command line */
     if (argc >= 2 && (time = atoi(argv[1])) >= 0) {
-        syscall(__NR_mm_limit_time, getuid(), TEN_MB * 3, time);
+        syscall(__NR_mm_limit_time, getuid(), LIMIT, time);
     } else {
-        syscall(__NR_mm_limit, getuid(), TEN_MB * 3);
+        syscall(__NR_mm_limit, getuid(), LIMIT);
     }
-    printf("Syscalled with allowed time: %dms\n", time);
+    printf("Syscalled with: limit=%dMB, time=%dms\n", LIMIT >> 20, time);
+
+    timer.it_value.tv_sec = 0;
+    timer.it_value.tv_usec = 200000;
+    timer.it_interval.tv_sec = 0;
+    timer.it_interval.tv_usec = 200000;
+    signal(SIGALRM, &timer_handler);
 
     /* start testing */
-#define LIMIT_1 TEN_MB * 2
-    p = malloc(LIMIT_1);
-    for (i = 0; i < LIMIT_1 / 4; i++) { p[i] = i; }
-    printf("I survived ONCE\n");
-
-#define LIMIT_2 TEN_MB * 2
-    q = malloc(LIMIT_2);
-    for (i = 0; i < LIMIT_2 / 4; i++) { q[i] = i; }
-    printf("I survived TWICE\n");
-
-#define LIMIT_3 TEN_MB * 2
-    q = malloc(LIMIT_3);
-    for (i = 0; i < LIMIT_3 / 4; i++) { q[i] = i; }
-    printf("I survived THRICE\n");
-
-    printf("Now I will allocate memory in an infinite loop!\n");
-    while (1) {
-        p = malloc(4);
-        *p = (int)p;
+    printf("Allocated: ");
+    for (count = 1; count <= 5; count++) {
+        p = malloc(LIMIT / 5);
+        memset(p, 0x88, LIMIT / 5);
+        printf("%d%% ", count * 20);
     }
+    printf("\n");
+    setitimer(ITIMER_REAL, &timer, NULL);
+
+    while (1)
+        ;
 
     printf("SHOULD NEVER REACH HERE: Bye\n");
     exit(0);
