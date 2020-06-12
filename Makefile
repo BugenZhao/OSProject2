@@ -73,19 +73,25 @@ run: build upload
 	adb shell "insmod ${MODULE_DEST} && lsmod"
 	adb shell "chmod +x ${KILLER_TEST_DEST}"
 	@echo "\n\e[33m>> Running Bugen's tests...\e[0m"
-	# adb shell "su 10060 ${KILLER_TEST_DEST} syscall"
-	# adb shell "su 10060 ${KILLER_TEST_DEST} performance"
+	adb shell "su 10060 ${KILLER_TEST_DEST} syscall"
+	adb shell "su 10060 ${KILLER_TEST_DEST} performance"
 	adb shell "su 10060 ${KILLER_TEST_DEST} race"
-	# @echo "\n\e[33m>> Running functionality tests...\e[0m"
-	# adb shell "su 10060 ${KILLER_TEST_DEST}"
-	# adb shell "su 10060 ${KILLER_TEST_DEST} 400"
-	# adb shell "su 10060 ${KILLER_TEST_DEST} 1000"
-	# @echo "\n\e[33m>> Running prj2_test...\e[0m"
-	# adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 160000000"
-	# adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 40000000 40000000 40000000 40000000"
-	# adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70  20000000  8000000  8000000  8000000  8000000"
+	@echo "\n\e[33m>> Running functionality tests...\e[0m"
+	adb shell "su 10060 ${KILLER_TEST_DEST}"
+	adb shell "su 10060 ${KILLER_TEST_DEST} 400"
+	adb shell "su 10060 ${KILLER_TEST_DEST} 1000"
+	@echo "\n\e[33m>> Running prj2_test...\e[0m"
+	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 160000000"
+	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 40000000 40000000 40000000 40000000"
+	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70  20000000  8000000  8000000  8000000  8000000"
 	@echo "\n\n\e[33m>> Cleaning...\e[0m"
 	adb shell rmmod ${MODULE_DEST}
+
+nokiller: build upload
+	@echo "\n\e[33m>> Running Bugen's tests... mm_limit should be ignored\e[0m"
+	adb shell "su 10060 ${KILLER_TEST_DEST} performance"
+	@echo "\n\e[33m>> Running prj2_test... the process should not be killed\e[0m"
+	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 160000000"
 
 clean:
 	make -C ${MODULE_DIR} clean
