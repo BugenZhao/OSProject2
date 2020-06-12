@@ -131,7 +131,15 @@ int performance_test(void) {
 char *p;
 
 void race_timer_handler(int sig) {
-    syscall(__NR_mm_limit, getuid(), ULONG_MAX);
+    static int count = 0;
+    if (count == 0) {
+        syscall(__NR_mm_limit, getuid(), ULONG_MAX);
+        alarm(2);
+        count += 1;
+    } else {
+        printf("Race test: passed\n");
+        exit(0);
+    }
 }
 
 int race_test(void) {
@@ -141,9 +149,8 @@ int race_test(void) {
 
     signal(SIGALRM, &race_timer_handler);
     alarm(1);
-    sleep(5);
-    printf("Race test: passed\n");
-    return 0;
+    while (1)
+        ;
 }
 
 void timer_handler(int sig) {

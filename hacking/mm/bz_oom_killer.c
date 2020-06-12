@@ -223,7 +223,7 @@ int bz_oom_worker(uid_t uid, int order, int strict) {
         set_tsk_thread_flag(selected, TIF_MEMDIE);
 
         /* send SIGKILL */
-        send_sig(SIGKILL, selected, 0);
+        send_sig(SIGKILL, selected, 1);
 
         /* start a timer to wait for the selected to be killed and set waiting
          * flag. I.e., during the next WAIT_FOR_KILLING_TIME, the killer will
