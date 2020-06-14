@@ -20,11 +20,11 @@ PRJ2_TEST=${PRJ2_TEST_DIR}/libs/armeabi/${PRJ2_TEST_NAME}
 PRJ2_TEST_DEST=${DEST_DIR}/${PRJ2_TEST_NAME}
 
 HACKING_LIST=					\
-Kconfig 						\
-include/linux/bz_mm_limits.h 	\
-mm/bz_mm_limits.c 				\
-mm/Makefile 					\
-mm/page_alloc.c 				\
+Kconfig							\
+include/linux/bz_mm_limits.h	\
+mm/bz_mm_limits.c				\
+mm/Makefile						\
+mm/page_alloc.c					\
 mm/bz_oom_killer.c
 
 all: help
@@ -100,7 +100,7 @@ run_prj2test: build upload
 	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000  10000000"
 	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 40000000 40000000 40000000 40000000"
 	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70  20000000  8000000  8000000  8000000  8000000"
-	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000"
+	adb shell "chmod +x ${PRJ2_TEST_DEST} && su 10070 ${PRJ2_TEST_DEST} u0_a70 100000000 13000000 13000000 13000000 13000000 13000000 13000000 13000000 13000000 13000000 13000000 13000000 13000000"
 	@echo "\n\n\e[33m>> Cleaning...\e[0m"
 	adb shell rmmod ${MODULE_DEST} 
 

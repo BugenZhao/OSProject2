@@ -58,29 +58,29 @@ adb shell "su 10060 /data/misc/killer_test performance"
 Test mode (uid: 10060)
 Performance test: preparing...
 Performance test: running WITH mm_limit
-Performance test: allocated 256 MB in 1.70 cpu secs
-Performance test: allocated 256 MB in 1.65 cpu secs
-Performance test: allocated 256 MB in 1.68 cpu secs
-Performance test: allocated 256 MB in 1.62 cpu secs
-Performance test: allocated 256 MB in 1.61 cpu secs
-Performance test: allocated 256 MB in 1.58 cpu secs
+Performance test: allocated 256 MB in 1.40 cpu secs
+Performance test: allocated 256 MB in 1.27 cpu secs
 Performance test: allocated 256 MB in 1.54 cpu secs
-Performance test: allocated 256 MB in 1.55 cpu secs
-Performance test: allocated 256 MB in 1.55 cpu secs
-Performance test: allocated 256 MB in 1.65 cpu secs
-Performance test: average time: 1.61 cpu secs
+Performance test: allocated 256 MB in 1.27 cpu secs
+Performance test: allocated 256 MB in 1.23 cpu secs
+Performance test: allocated 256 MB in 1.21 cpu secs
+Performance test: allocated 256 MB in 1.19 cpu secs
+Performance test: allocated 256 MB in 1.19 cpu secs
+Performance test: allocated 256 MB in 1.45 cpu secs
+Performance test: allocated 256 MB in 1.25 cpu secs
+Performance test: average time: 1.30 cpu secs
 Performance test: running WITHOUT mm_limit
-Performance test: allocated 256 MB in 1.64 cpu secs
-Performance test: allocated 256 MB in 1.56 cpu secs
-Performance test: allocated 256 MB in 1.71 cpu secs
-Performance test: allocated 256 MB in 1.87 cpu secs
-Performance test: allocated 256 MB in 1.69 cpu secs
-Performance test: allocated 256 MB in 1.43 cpu secs
-Performance test: allocated 256 MB in 1.52 cpu secs
-Performance test: allocated 256 MB in 1.80 cpu secs
-Performance test: allocated 256 MB in 2.02 cpu secs
-Performance test: allocated 256 MB in 1.71 cpu secs
-Performance test: average time: 1.69 cpu secs
+Performance test: allocated 256 MB in 1.19 cpu secs
+Performance test: allocated 256 MB in 1.20 cpu secs
+Performance test: allocated 256 MB in 1.21 cpu secs
+Performance test: allocated 256 MB in 1.21 cpu secs
+Performance test: allocated 256 MB in 1.42 cpu secs
+Performance test: allocated 256 MB in 1.39 cpu secs
+Performance test: allocated 256 MB in 1.29 cpu secs
+Performance test: allocated 256 MB in 1.23 cpu secs
+Performance test: allocated 256 MB in 1.41 cpu secs
+Performance test: allocated 256 MB in 1.26 cpu secs
+Performance test: average time: 1.28 cpu secs
 adb shell "su 10060 /data/misc/killer_test race"
 Test mode (uid: 10060)
 Race test: passed
@@ -112,34 +112,33 @@ Allocated again: 20% of 50MB
 1800 ms
 2000 ms
 2200 ms
-2400 ms
 
 [33m>> Running prj2_test...[0m
 adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70 100000000 160000000"
 pw->uid=10070, pw->name=u0_a70
 @@@@uid: 10070
-@@@@pid: 893
-child process start malloc: pid=894, uid=10070, mem=160000000
+@@@@pid: 1190
+child process start malloc: pid=1191, uid=10070, mem=160000000
 adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70 100000000 40000000 40000000 40000000 40000000"
 pw->uid=10070, pw->name=u0_a70
 @@@@uid: 10070
-@@@@pid: 898
-child process start malloc: pid=902, uid=10070, mem=40000000
-child process start malloc: pid=901, uid=10070, mem=40000000
-child process start malloc: pid=900, uid=10070, mem=40000000
-child process start malloc: pid=899, uid=10070, mem=40000000
-child process finish malloc: pid=901, uid=10070, mem=40000000
-child process finish malloc: pid=899, uid=10070, mem=40000000
+@@@@pid: 1195
+child process start malloc: pid=1199, uid=10070, mem=40000000
+child process start malloc: pid=1198, uid=10070, mem=40000000
+child process start malloc: pid=1197, uid=10070, mem=40000000
+child process start malloc: pid=1196, uid=10070, mem=40000000
+child process finish malloc: pid=1196, uid=10070, mem=40000000
+child process finish malloc: pid=1199, uid=10070, mem=40000000
 adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70  20000000  8000000  8000000  8000000  8000000"
 pw->uid=10070, pw->name=u0_a70
 @@@@uid: 10070
-@@@@pid: 906
-child process start malloc: pid=910, uid=10070, mem=8000000
-child process start malloc: pid=909, uid=10070, mem=8000000
-child process start malloc: pid=908, uid=10070, mem=8000000
-child process start malloc: pid=907, uid=10070, mem=8000000
-child process finish malloc: pid=908, uid=10070, mem=8000000
-child process finish malloc: pid=910, uid=10070, mem=8000000
+@@@@pid: 1203
+child process start malloc: pid=1207, uid=10070, mem=8000000
+child process start malloc: pid=1206, uid=10070, mem=8000000
+child process start malloc: pid=1205, uid=10070, mem=8000000
+child process start malloc: pid=1204, uid=10070, mem=8000000
+child process finish malloc: pid=1205, uid=10070, mem=8000000
+child process finish malloc: pid=1207, uid=10070, mem=8000000
 
 
 [33m>> Cleaning...[0m

@@ -26,22 +26,22 @@ int bz_oom_worker(uid_t uid, int order, int strict);
 void bz_oom_time_expires(unsigned long _uid) {
     uid_t uid = (uid_t)_uid;
     printk(KERN_INFO "*** Time for checking user %u again. ***\n", uid);
-    set_mm_limit_waiting(uid, 0); /* reset waiting flag */
-    bz_oom_worker(uid, 0, 1);     /* retry with strict = 1 */
+    set_mm_limit_paused(uid, 0); /* reset paused flag */
+    bz_oom_worker(uid, 0, 1);    /* retry with strict = 1 */
 }
 
 /* timer callback: time to check if exactly killed */
 void bz_oom_kill_expires(unsigned long _uid) {
     uid_t uid = (uid_t)_uid;
     printk(KERN_INFO "*** Time for checking if user %u is killed. ***\n", uid);
-    set_mm_limit_waiting(uid, 0); /* reset waiting flag */
-    bz_oom_worker(uid, 0, 2);     /* retry with strict = 2 */
+    set_mm_limit_paused(uid, 0); /* reset paused flag */
+    bz_oom_worker(uid, 0, 2);    /* retry with strict = 2 */
 }
 
-/* timer callback: heuristic, only reset waiting flag */
-void bz_oom_reset_waiting(unsigned long _uid) {
+/* timer callback: heuristic, only reset paused flag */
+void bz_oom_reset_paused(unsigned long _uid) {
     uid_t uid = (uid_t)_uid;
-    set_mm_limit_waiting(uid, 0); /* reset waiting flag */
+    set_mm_limit_paused(uid, 0); /* reset paused flag */
 }
 
 /* heart of bugen's oom killer;
@@ -67,7 +67,7 @@ int bz_oom_worker(uid_t uid, int order, int strict) {
     if (found == NULL) { return 0; }
 
     /* check if killer should wait/ignore this time */
-    if (found->waiting) {
+    if (found->paused) {
         write_unlock_irq(&mm_limit_rwlock);
         return 0;
     }
@@ -143,8 +143,8 @@ int bz_oom_worker(uid_t uid, int order, int strict) {
                              (unsigned long)HZ / 2);
 
             if (wait_time > 0) {
-                /* start a timer with callback which reset waiting */
-                bz_start_timer(uid, &bz_oom_reset_waiting, wait_time);
+                /* start a timer with callback which reset paused */
+                bz_start_timer(uid, &bz_oom_reset_paused, wait_time);
                 /* printk(KERN_INFO
                        "*** Pause checking for user %u for %lu ticks. ***\n",
                        uid, wait_time); */
@@ -223,13 +223,13 @@ int bz_oom_worker(uid_t uid, int order, int strict) {
                "pRSS=%lupages=%lubytes ***\n",
                uid, sum_rss, sum_rss << PAGE_SHIFT, mm_max, selected->pid,
                max_rss, max_rss << PAGE_SHIFT);
-               
+
         set_tsk_thread_flag(selected, TIF_MEMDIE);
 
         /* send SIGKILL */
         send_sig(SIGKILL, selected, 1);
 
-        /* start a timer to wait for the selected to be killed and set waiting
+        /* start a timer to wait for the selected to be killed and set paused
          * flag. I.e., during the next WAIT_FOR_KILLING_TIME, the killer will
          * ignore this user, and after that killer will immediately check if it
          * is killed */
@@ -242,7 +242,7 @@ int bz_oom_worker(uid_t uid, int order, int strict) {
         /* send a force SIGKILL */
         force_sig(SIGKILL, selected);
 
-        /* start a timer to wait for the selected to be killed and set waiting
+        /* start a timer to wait for the selected to be killed and set paused
          * flag. I.e., during the next WAIT_FOR_KILLING_TIME, the killer will
          * ignore this user, and after that killer will immediately check if it
          * is killed */

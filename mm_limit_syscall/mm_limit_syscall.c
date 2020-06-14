@@ -97,7 +97,7 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
 
         tmp->uid = uid;       /* user id */
         tmp->mm_max = mm_max; /* memory limit */
-        tmp->waiting = 0;     /* killer waiting flag */
+        tmp->paused = 0;      /* killer paused flag */
 
         /* reset the last record for heuristic  */
         tmp->last_mm = 0;

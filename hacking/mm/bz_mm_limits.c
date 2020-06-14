@@ -27,15 +27,15 @@ struct mm_limit_struct *find_lock_mm_limit_struct(uid_t uid) {
     return NULL;
 }
 
-/* set the killer's waiting state for the given uid to v */
-int set_mm_limit_waiting(uid_t uid, int v) {
+/* set the killer's paused state for the given uid to v */
+int set_mm_limit_paused(uid_t uid, int v) {
     struct mm_limit_struct *p;
 
     /* lock the list */
     write_lock_irq(&mm_limit_rwlock);
     list_for_each_entry(p, &init_mm_limit.list, list) {
         if (p->uid == uid) {
-            p->waiting = v;
+            p->paused = v;
             write_unlock_irq(&mm_limit_rwlock);
             return 0;
         }
@@ -45,8 +45,8 @@ int set_mm_limit_waiting(uid_t uid, int v) {
     return -2;
 }
 
-/* get the killer's waiting state for the given uid */
-int get_mm_limit_waiting(uid_t uid) {
+/* get the killer's paused state for the given uid */
+int get_mm_limit_paused(uid_t uid) {
     struct mm_limit_struct *p;
 
     /* lock the list */
@@ -54,7 +54,7 @@ int get_mm_limit_waiting(uid_t uid) {
     list_for_each_entry(p, &init_mm_limit.list, list) {
         if (p->uid == uid) {
             read_unlock_irq(&mm_limit_rwlock);
-            return p->waiting;
+            return p->paused;
         }
     }
     /* uid not found */
@@ -76,7 +76,7 @@ long long bz_start_timer(uid_t uid, void (*function)(unsigned long),
             /* either custom_time, or time_allow_exceed ? */
             unsigned time = custom_time ? custom_time : p->time_allow_exceed;
 
-            if (p->waiting) {
+            if (p->paused) {
                 /* the timer may have been started! */
                 write_unlock_irq(&mm_limit_rwlock);
                 return -3;
@@ -91,7 +91,7 @@ long long bz_start_timer(uid_t uid, void (*function)(unsigned long),
             p->timer->expires = jiffies + time; /* set expiration time */
             p->timer->data = uid;               /* argument to the callback */
             p->timer->function = function;      /* callback */
-            p->waiting = 1;      /* killer should be waiting from now */
+            p->paused = 1;       /* killer should be paused from now */
             add_timer(p->timer); /* add timer to kernel */
 
             write_unlock_irq(&mm_limit_rwlock);

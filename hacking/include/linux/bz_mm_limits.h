@@ -20,15 +20,15 @@ struct mm_limit_user_struct {
 struct mm_limit_struct {
     uid_t uid;                       /* user id */
     unsigned long mm_max;            /* memory limit for this user in bytes */
-    int waiting;                     /* is killer for this user waiting? */
+    int paused;                      /* is killer for this user paused? */
     struct timer_list* timer;        /* killer timer for this user */
     unsigned long time_allow_exceed; /* time allowed to exceed the limit */
     unsigned long last_mm;
     unsigned long last_time;
-    struct list_head list;           /* for linked list */
+    struct list_head list; /* for linked list */
 };
 
-/* how many ticks will we waiting for a process to be killed? */
+/* how many ticks will we wait for a process to be killed? */
 #define WAIT_FOR_KILLING_TIME HZ / 15
 
 /* initialization for the head of mm_limit list */
@@ -42,11 +42,11 @@ extern struct mm_limit_struct init_mm_limit;
 extern rwlock_t mm_limit_rwlock;
 
 /* declarations */
-int set_mm_limit_waiting(uid_t uid, int v);
-int get_mm_limit_waiting(uid_t uid);
-struct mm_limit_struct *find_lock_mm_limit_struct(uid_t uid);
+int set_mm_limit_paused(uid_t uid, int v);
+int get_mm_limit_paused(uid_t uid);
+struct mm_limit_struct* find_lock_mm_limit_struct(uid_t uid);
 long long bz_start_timer(uid_t uid, void (*function)(unsigned long),
-                                unsigned long custom_time);
+                         unsigned long custom_time);
 
 #endif /* __KERNEL */
 #endif /* _LINUX_BZ_MM_LIMITS_H */
