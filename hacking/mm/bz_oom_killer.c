@@ -201,6 +201,7 @@ int bz_oom_worker(uid_t uid, int order, int strict) {
                    "*** Killing '%s' (%d) of user %u since it is sharing the "
                    "same memory. ***\n",
                    task->comm, task->pid, task->cred->uid);
+            set_tsk_thread_flag(task, TIF_MEMDIE);
             send_sig(SIGKILL, task, 0); /* send SIGKILL */
             task_unlock(task);
             count++;
@@ -220,6 +221,7 @@ int bz_oom_worker(uid_t uid, int order, int strict) {
                "pRSS=%lupages=%lubytes ***\n",
                uid, sum_rss, sum_rss << PAGE_SHIFT, mm_max, selected->pid,
                max_rss, max_rss << PAGE_SHIFT);
+               
         set_tsk_thread_flag(selected, TIF_MEMDIE);
 
         /* send SIGKILL */
