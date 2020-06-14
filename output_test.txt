@@ -54,58 +54,59 @@ adb shell "chmod +x /data/misc/killer_test"
 adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70 100000000 160000000"
 pw->uid=10070, pw->name=u0_a70
 @@@@uid: 10070
-@@@@pid: 228
-child process start malloc: pid=231, uid=10070, mem=160000000
+@@@@pid: 216
+child process start malloc: pid=219, uid=10070, mem=160000000
 adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70 100000000  10000000"
 pw->uid=10070, pw->name=u0_a70
 @@@@uid: 10070
-@@@@pid: 260
-child process start malloc: pid=262, uid=10070, mem=10000000
-child process finish malloc: pid=262, uid=10070, mem=10000000
+@@@@pid: 237
+child process start malloc: pid=240, uid=10070, mem=10000000
+child process finish malloc: pid=240, uid=10070, mem=10000000
 adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70 100000000 40000000 40000000 40000000 40000000"
 pw->uid=10070, pw->name=u0_a70
 @@@@uid: 10070
-@@@@pid: 272
-child process start malloc: pid=282, uid=10070, mem=40000000
-child process start malloc: pid=281, uid=10070, mem=40000000
-child process start malloc: pid=280, uid=10070, mem=40000000
-child process start malloc: pid=279, uid=10070, mem=40000000
-child process finish malloc: pid=280, uid=10070, mem=40000000
-child process finish malloc: pid=282, uid=10070, mem=40000000
+@@@@pid: 248
+child process start malloc: pid=254, uid=10070, mem=40000000
+child process start malloc: pid=253, uid=10070, mem=40000000
+child process start malloc: pid=252, uid=10070, mem=40000000
+child process start malloc: pid=251, uid=10070, mem=40000000
+child process finish malloc: pid=253, uid=10070, mem=40000000
+child process finish malloc: pid=254, uid=10070, mem=40000000
 adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70  20000000  8000000  8000000  8000000  8000000"
 pw->uid=10070, pw->name=u0_a70
 @@@@uid: 10070
-@@@@pid: 303
-child process start malloc: pid=306, uid=10070, mem=8000000
-child process start malloc: pid=307, uid=10070, mem=8000000
-child process start malloc: pid=308, uid=10070, mem=8000000
-child process start malloc: pid=309, uid=10070, mem=8000000
-child process finish malloc: pid=307, uid=10070, mem=8000000
-child process finish malloc: pid=309, uid=10070, mem=8000000
+@@@@pid: 281
+child process start malloc: pid=287, uid=10070, mem=8000000
+child process start malloc: pid=286, uid=10070, mem=8000000
+child process start malloc: pid=285, uid=10070, mem=8000000
+child process start malloc: pid=288, uid=10070, mem=8000000
+child process finish malloc: pid=287, uid=10070, mem=8000000
+child process finish malloc: pid=288, uid=10070, mem=8000000
 adb shell "chmod +x /data/misc/prj2_test && su 10070 /data/misc/prj2_test u0_a70 100000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000 11000000"
 pw->uid=10070, pw->name=u0_a70
 @@@@uid: 10070
-@@@@pid: 317
-child process start malloc: pid=326, uid=10070, mem=11000000
-child process start malloc: pid=325, uid=10070, mem=11000000
-child process start malloc: pid=327, uid=10070, mem=11000000
-child process start malloc: pid=328, uid=10070, mem=11000000
-child process start malloc: pid=329, uid=10070, mem=11000000
-child process start malloc: pid=330, uid=10070, mem=11000000
-child process start malloc: pid=324, uid=10070, mem=11000000
-child process start malloc: pid=323, uid=10070, mem=11000000
-child process start malloc: pid=322, uid=10070, mem=11000000
+@@@@pid: 307
+child process start malloc: pid=315, uid=10070, mem=11000000
+child process start malloc: pid=317, uid=10070, mem=11000000
+child process start malloc: pid=316, uid=10070, mem=11000000
+child process start malloc: pid=314, uid=10070, mem=11000000
+child process start malloc: pid=313, uid=10070, mem=11000000
+child process start malloc: pid=312, uid=10070, mem=11000000
+child process start malloc: pid=311, uid=10070, mem=11000000
+child process start malloc: pid=310, uid=10070, mem=11000000
+child process start malloc: pid=319, uid=10070, mem=11000000
 child process start malloc: pid=321, uid=10070, mem=11000000
 child process start malloc: pid=320, uid=10070, mem=11000000
-child process start malloc: pid=319, uid=10070, mem=11000000
-child process finish malloc: pid=328, uid=10070, mem=11000000
-child process finish malloc: pid=330, uid=10070, mem=11000000
-child process finish malloc: pid=321, uid=10070, mem=11000000
-child process finish malloc: pid=319, uid=10070, mem=11000000
-child process finish malloc: pid=329, uid=10070, mem=11000000
+child process start malloc: pid=318, uid=10070, mem=11000000
+child process finish malloc: pid=312, uid=10070, mem=11000000
+child process finish malloc: pid=311, uid=10070, mem=11000000
+child process finish malloc: pid=318, uid=10070, mem=11000000
+child process finish malloc: pid=310, uid=10070, mem=11000000
+child process finish malloc: pid=316, uid=10070, mem=11000000
 child process finish malloc: pid=320, uid=10070, mem=11000000
-child process finish malloc: pid=322, uid=10070, mem=11000000
-child process finish malloc: pid=324, uid=10070, mem=11000000
+child process finish malloc: pid=313, uid=10070, mem=11000000
+child process finish malloc: pid=321, uid=10070, mem=11000000
+child process finish malloc: pid=315, uid=10070, mem=11000000
 
 
 [33m>> Cleaning...[0m

@@ -39,10 +39,10 @@ kernel: rsync
 
 help:
 	@echo "To run the test:"
-	@echo "    0. Run 'make kernel' to update hacking files and rebuild the kernel."
+	@echo "    0. Run 'make kernel' to sync hacking files from ./hacking to ./goldfish, and rebuild the kernel."
 	@echo "    1. Run 'make emulator' to start the emulator."
 	@echo "    2. Run 'make test' to run the test."
-	@echo "    2. Run 'make testall' to run all the tests, including my own tester."
+	@echo "    3. Run 'make testall' to run all the tests, including my own tester."
 
 emulator:
 	emulator -avd ${AVD_NAME} -kernel ${KERNEL_ZIMG} -no-window -show-kernel
@@ -51,7 +51,7 @@ test: clean
 	make run_prj2test | tee output_test.txt
 
 testall: clean
-	make run | tee output.txt
+	make run | tee output_testall.txt
 
 shell:
 	adb shell
