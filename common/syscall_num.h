@@ -1,3 +1,5 @@
+/* macro of syscall numbers */
+
 #ifndef _BZ_SYSCALL_NUM_H
 #define _BZ_SYSCALL_NUM_H
 

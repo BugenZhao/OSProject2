@@ -1,3 +1,5 @@
+/* my tester: correctness, race, performance, time */
+
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>

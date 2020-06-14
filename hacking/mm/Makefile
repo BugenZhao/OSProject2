@@ -1,3 +1,5 @@
+# added objects of new sources for the killer
+
 #
 # Makefile for the linux memory manager.
 #

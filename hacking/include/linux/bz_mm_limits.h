@@ -1,3 +1,5 @@
+/* definition of global vars & helper funcs */
+
 #ifndef _LINUX_BZ_MM_LIMITS_H
 #define _LINUX_BZ_MM_LIMITS_H
 

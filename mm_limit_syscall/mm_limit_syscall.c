@@ -1,4 +1,4 @@
-// Main code of `set_mm_limit` syscall
+/* syscall module: set, set_time, get */
 
 #include <linux/bz_mm_limits.h>
 #include <linux/init.h>

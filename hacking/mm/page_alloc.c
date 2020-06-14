@@ -1,3 +1,5 @@
+/* added 2 loc to call the killer, at line 2448 */
+
 /*
  *  linux/mm/page_alloc.c
  *

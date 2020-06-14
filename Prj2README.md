@@ -18,9 +18,9 @@ Please refer to [`Report.pdf`](./Report.pdf)
 │   ├── mm
 │   │   ├── bz_mm_limits.c  # body of helper funcs
 │   │   ├── bz_oom_killer.c # the killer
-│   │   ├── Makefile        # add objects of new sources
-│   │   └── page_alloc.c    # add 2 loc to call the killer
-│   └── Kconfig
+│   │   ├── Makefile        # added objects of new sources
+│   │   └── page_alloc.c    # added 2 loc to call the killer, at line 2448
+│   └── Kconfig # added the killer as a feature
 ├── killer_test # my tester: correctness, race, performance, time
 │   ├── jni
 │   │   ├── Android.mk
@@ -48,7 +48,7 @@ Please refer to [`Report.pdf`](./Report.pdf)
 ### Build the kernel
 As you can see, the hacking sources to the kernel is all located at `hacking/`, which preserves the structure of the original kernel. I also make a symbolic link `goldfish` to the kernel. If you have the same structure as me, run `make rsync` to sync them, otherwise copy them manually to the kernel.
 
-The killer is implemented as an **optional feature**, which requires you run `make menuconfig` to enable it before building the kernel! Or the killer won't be built into the kernel.
+The killer is implemented as an **optional feature**, which requires you to run `make menuconfig` to enable it before building the kernel! Or the killer won't be built into the kernel.
 
 ### Run tests
 All build and test commands are in `Makefile`. To run the test, you should determine some required arguments then execute the following commands. For more info about the variables, please refer to `Makefile`.
@@ -59,13 +59,13 @@ Please note that running the following tests will **overwrite** the output examp
 # Start the emulator
 make emulator (AVD_NAME=xxx KERNEL_ZIMG=yyy)
 
-# Build and run prj2_test.
+# Build and run prj2_test
 # It will also output in `output_test.txt`
 make test (KID=xxx TOOLCHAIN=yyy)
 
-# Build and run all tests, including my tester.
+# Build and run all tests, including my tester (may be slower)
 # It will also output in `output_testall.txt`
-make test (KID=xxx TOOLCHAIN=yyy)
+make testall (KID=xxx TOOLCHAIN=yyy)
 
 # Do some cleanup
 make clean
