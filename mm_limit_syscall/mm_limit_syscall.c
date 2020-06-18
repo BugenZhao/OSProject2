@@ -94,6 +94,7 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
         /* allocate a new mm_limit_struct */
         struct mm_limit_struct *tmp =
             kmalloc(sizeof(struct mm_limit_struct), GFP_KERNEL);
+        if (!tmp) { return -ENOMEM; }
 
         tmp->uid = uid;       /* user id */
         tmp->mm_max = mm_max; /* memory limit */
@@ -105,6 +106,10 @@ static int set_mm_limit_time_syscall(uid_t uid, unsigned long mm_max,
 
         /* init timer */
         tmp->timer = kmalloc(sizeof(struct timer_list), GFP_KERNEL);
+        if (!tmp->timer) {
+            kfree(tmp);
+            return -ENOMEM;
+        }
         init_timer(tmp->timer);
         tmp->time_allow_exceed = time_allow_exceed;
 
